@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
 import './App.css';
+import P5Component from './p5Components/P5Component.jsx';
+import BarChart from './d3Components/BarChart.jsx';
 
 function App() {
   const [currentTime, setCurrentTime] = useState(0);
+  const state = {
+    data: [12, 5, 6, 6, 9, 10],
+    width: 700,
+    height: 500
+  }
 
   useEffect(() => {
     fetch('/time').then(res => res.json()).then(data => {
@@ -13,19 +19,9 @@ function App() {
 
   return (
     <div className="App">
+      <P5Component/>
+      <BarChart data={state.data} width={state.width} height={state.height}/>
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
         <p>The current time is {currentTime}.</p>
       </header>
     </div>

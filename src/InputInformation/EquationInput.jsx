@@ -4,102 +4,195 @@ import "./EquationInput.css";
 
 const YFUNCTION = (x) => Math.log(1) + Math.log(x);
 
+const defaultObjC = [5, 4];
+const defaultConstC = [
+  [2, 1],
+  [1, 1],
+  [1, 2],
+];
+const defaultConstType = ["less", "less", "great"];
+const defaultConstRHS = [20, 18, 12];
+
 export default class EquationInput extends Component {
   constructor(props) {
     super(props);
     this.state = {
       numVar: 2,
       numConst: 3,
-      objRefs: [],
-      constRefs: [],
-      obj:"maximize",
-      objCoef: [5, 4],
-      constCoef: [
-        [2, 1],
-        [1, 1],
-        [1, 2],
-      ],
-      constRHS: [20, 18, 12],
+      obj: "maximize",
+      objCoef: [],
+      constCoef: [],
+      constType: [],
+      constRHS: [],
+      modelValid: false,
     };
   }
-
+  /************************************************/
   addVar() {
-    const { numVar, objRefs, constRefs } = this.state;
+    const { numVar, objCoef, constCoef } = this.state;
     if (numVar > 3) {
       console.log("max number of variables reached!");
       return;
     }
-    objRefs.push(React.createRef());
-    constRefs.forEach((row) => row.splice(numVar - 1, 0, React.createRef()));
+    objCoef.push("");
+    constCoef.forEach((row) => row.push(""));
     this.setState({
       numVar: numVar + 1,
-      objRefs: objRefs,
-      constRefs: constRefs,
+      objCoef: objCoef,
+      constCoef: constCoef,
+      modelValid: false,
     });
   }
   removeVar() {
-    const { numVar, objRefs, constRefs } = this.state;
+    const { numVar, objCoef, constCoef } = this.state;
     if (numVar === 1) {
       console.log("var cannot drop below 1!");
       return;
     }
-    objRefs.pop();
-    constRefs.forEach((row) => row.splice(numVar - 2, 1));
+    objCoef.pop();
+    constCoef.forEach((row) => row.pop());
     this.setState({
       numVar: numVar - 1,
-      objRefs: objRefs,
-      constRefs: constRefs,
+      objCoef: objCoef,
+      constCoef: constCoef,
+      modelValid: false,
     });
   }
   addConst() {
-    const { numVar, numConst, constRefs } = this.state;
+    const { numVar, numConst, constCoef, constType, constRHS } = this.state;
     if (numConst > 99) {
       console.log("max number of constraints reached!");
       return;
     }
-    constRefs.push(initializeObjRef(numVar + 1));
+    constCoef.push(initObjFunc(numVar));
+    constType.push("less");
+    constRHS.push("");
     this.setState({
       numConst: numConst + 1,
-      constRefs: constRefs,
+      constCoef: constCoef,
+      constType: constType,
+      constRHS: constRHS,
+      modelValid: false,
     });
   }
   removeConst() {
-    const { numConst, constRefs } = this.state;
+    const { numConst, constCoef, constType, constRHS } = this.state;
     if (numConst === 1) {
       console.log("constraints cannot drop below 1!");
       return;
     }
-    constRefs.pop();
+    constCoef.pop();
+    constType.pop();
+    constRHS.pop();
     this.setState({
       numConst: numConst - 1,
-      constRefs: constRefs,
+      constCoef: constCoef,
+      constType: constType,
+      constRHS: constRHS,
+      modelValid: false,
     });
   }
-  handleOptimization = (e) => {
+  /************************************************/
+  handleObjTypeChange = (e) => {
+    console.log("changed this", e.target.id);
     this.setState({
-        obj:e.target.value,
-    })
+      obj: e.target.value,
+      modelValid: false,
+    });
   };
 
-  submitModel(e) {
-    e.preventDefault();
-    //displayWarning("Please input numbers only.");
-  }
+  handleNumberChange = (e) => {
+    if (
+      isNaN(e.target.value) &&
+      e.target.value !== undefined &&
+      e.target.value !== ""
+    ) {
+      console.log("non-numbers unallowed");
+      e.preventDefault();
+      return;
+    }
+    const id = e.target.id;
+    const first = id.indexOf("-", 0);
+    if (id.includes("rhs")) {
+      const { constRHS } = this.state;
+      const index = parseInt(id.substring(first + 1));
+      constRHS[index - 1] = e.target.value;
+      this.setState({
+        constRHS: constRHS,
+        modelValid: false,
+      });
+    } else if (id.includes("xc")) {
+      const { constCoef } = this.state;
+      const second = id.indexOf("-", first + 1);
+      const i_index = parseInt(id.substring(first + 1, second));
+      const j_index = parseInt(id.substring(second + 1));
 
+      constCoef[j_index - 1][i_index - 1] = e.target.value;
+      this.setState({
+        constCoef: constCoef,
+        modelValid: false,
+      });
+    } else {
+      const { objCoef } = this.state;
+      const index = parseInt(id.substring(first + 1));
+      objCoef[index - 1] = e.target.value;
+      this.setState({
+        objCoef: objCoef,
+        modelValid: false,
+      });
+    }
+    console.log("changed number: ", id, e.target.value);
+  };
+
+  handleConstTypeChange = (e) => {
+    const { constType } = this.state;
+    const index = parseInt(e.target.id.substring(6));
+    constType[index - 1] = e.target.value;
+    this.setState({
+      constType: constType,
+      modelValid: false,
+    });
+    console.log("changed constraint type:", e.target.id, e.target.value);
+  };
+  /************************************************/
+  submitModel() {
+    const { numVar,numConst, obj,objCoef, constCoef,constType,constRHS } = this.state;
+    
+    //THIS IS WHERE BACKEND COMMUNICATION OCCURS
+
+    //this.setState({modelValid:true});
+  }
+  /************************************************/
   componentDidMount() {
     const { numVar, numConst } = this.state;
-    const objRefs = initializeObjRef(numVar);
-    const constRefs = initializeConstRef(numVar, numConst);
+
+    const objCoef = initObjFunc(numVar);
+    const constRHS = initObjFunc(numConst);
+    const constType = initConstType(numConst);
+    const constCoef = initConstFunc(numVar, numConst);
+
+    //this is a test
     this.setState({
-      objRefs: objRefs,
-      constRefs: constRefs,
+      objCoef: defaultObjC,
+      constCoef: defaultConstC,
+      constType: defaultConstType,
+      constRHS: defaultConstRHS,
     });
+    //this.setState({objCoef: objCoef, constCoef:constCoef, constType:constType constRHS:constRHS});
   }
 
   componentDidUpdate() {}
-
+  /************************************************/
   render() {
-    const { numVar, numConst, objRefs, constRefs } = this.state;
+    const {
+      numVar,
+      numConst,
+      objCoef,
+      constCoef,
+      constType,
+      constRHS,
+      modelValid,
+    } = this.state;
 
     return (
       <div className="simplex">
@@ -108,15 +201,22 @@ export default class EquationInput extends Component {
             name="optimization"
             id="optType"
             value={this.state.obj}
-            onChange={this.handleOptimization}
+            onChange={this.handleObjTypeChange.bind(this)}
           >
             <option value="maximize">Max</option>
             <option value="minimize">Min</option>
           </select>
           {` :  `}
-          {objFunc(objRefs, numVar)}
+          {objFunc(objCoef, numVar, this.handleNumberChange.bind(this))}
           <br></br>Constraints :<br></br>
-          {constraints(constRefs, numConst, numVar)}
+          {constraints(
+            constCoef,
+            constType,
+            constRHS,
+            numVar,
+            this.handleNumberChange.bind(this),
+            this.handleConstTypeChange.bind(this)
+          )}
           <br></br>
           <label>Change Number of Variables: </label>
           <button onClick={() => this.addVar()}>add(+)</button>
@@ -132,33 +232,69 @@ export default class EquationInput extends Component {
           <button onClick={() => this.submitModel()}>submit</button>
         </div>
         <div className="split right">
-          <D3Component yfunc={(x) => YFUNCTION(x)}></D3Component>
+          {modelValid ? (
+            <D3Component yfunc={(x) => YFUNCTION(x) } modelValid={modelValid} objCoef={objCoef} constCoef={constCoef} constRHS={constRHS} ></D3Component>
+          ) : (
+            <D3Component yfunc={(x) => YFUNCTION(x)} modelValid={modelValid}></D3Component>
+          )}
         </div>
       </div>
     );
   }
 }
 
-const initializeObjRef = (numVar) => {
-  const objRef = [];
-  for (let i = 0; i < numVar; i++) {
-    objRef.push(React.createRef());
-  }
-  return objRef;
+/**
+ * initialize Objective Function Coefficients (also called by other functions since this serves a simple purpose)
+ * @param {*} numVar
+ */
+const initObjFunc = (numVar) => {
+  const objC = [];
+  for (let i = 0; i < numVar; i++) objC.push("");
+  return objC;
 };
-const initializeConstRef = (numVar, numConst) => {
-  const constRef = [];
-  for (let j = 0; j < numConst; j++) {
-    constRef.push(initializeObjRef(numVar + 1));
-  }
-  return constRef;
+
+/**
+ * initialize Constraint Function Coefficients
+ * @param {*} numVar
+ */
+const initConstFunc = (numVar, numConst) => {
+  const constC = [];
+  for (let j = 0; j < numConst; j++) constC.push(initObjFunc(numVar));
+  return constC;
 };
-const objFunc = (objRefs, numVar) => {
-  return objRefs.map((varRef, i) => {
+
+/**
+ * initialize Constraint Function Types
+ * less than equal to is "less"
+ * equal to is "equal"
+ * greater than equal to is "great"
+ * @param {*} numVar
+ */
+const initConstType = (numConst) => {
+  const constT = [];
+  for (let j = 0; j < numConst; j++) constT.push("less");
+  return constT;
+};
+
+/**
+ *
+ * @param {*} objCoef
+ * @param {*} numVar
+ * @param {*} handleNumberChange
+ */
+const objFunc = (objCoef, numVar, handleNumberChange) => {
+  return objCoef.map((coeff, i) => {
     const objOut = [];
-    objOut.push(<input type="text" key={`xvar${i + 1}`} id={`xvar${i + 1}`} ref={varRef} />);
     objOut.push(
-      <label htmlFor={`xvar${i + 1}`}>
+      <input
+        type="text"
+        id={`x-${i + 1}`}
+        value={coeff}
+        onChange={handleNumberChange}
+      />
+    );
+    objOut.push(
+      <label htmlFor={`x-${i + 1}`}>
         {` * `}
         <b>x{i + 1} </b>
       </label>
@@ -167,16 +303,36 @@ const objFunc = (objRefs, numVar) => {
     return objOut;
   });
 };
-const constraints = (constRefs, numConst, numVar) => {
-  return constRefs.map((constArray, j) => {
-    const constOut = constArray.map((varRef, i) => {
-      if (numVar === i) return null;
+
+/**
+ *
+ * @param {*} constCoef
+ * @param {*} constRHS
+ * @param {*} numConst
+ * @param {*} numVar
+ * @param {*} handleNumberChange
+ */
+const constraints = (
+  constCoef,
+  constType,
+  constRHS,
+  numVar,
+  handleNumberChange,
+  handleConstTypeChange
+) => {
+  return constCoef.map((constArray, j) => {
+    const constOut = constArray.map((coeff, i) => {
       const varOut = [];
       varOut.push(
-        <input type="text" key={`xvar${i + 1}-const${j + 1}`} id={`xvar${i + 1}-const${j + 1}`} ref={varRef} />
+        <input
+          type="text"
+          id={`xc-${i + 1}-${j + 1}`}
+          value={coeff}
+          onChange={handleNumberChange}
+        />
       );
       varOut.push(
-        <label htmlFor={`xvar${i + 1}-const${j + 1}`}>
+        <label htmlFor={`xc-${i + 1}-${j + 1}`}>
           {` * `}
           <b>x{i + 1} </b>
         </label>
@@ -187,17 +343,25 @@ const constraints = (constRefs, numConst, numVar) => {
 
     constOut.push(
       <select
-        name={`constraint-${j + 1}`}
-        id={`const${j + 1}`}
-        ref={constArray[numVar]}
+        name={`ctype-${j + 1}`}
+        id={`ctype-${j + 1}`}
+        value={constType[j]}
+        onChange={handleConstTypeChange}
       >
-        <option value={`less${j + 1}`}>{`<=`}</option>
-        <option value={`equal${j + 1}`}>{`=`}</option>
-        <option value={`great${j + 1}`}>{`>=`}</option>
+        <option value="less">{`<=`}</option>
+        <option value="equal">{`=`}</option>
+        <option value="great">{`>=`}</option>
       </select>
     );
     constOut.push(" ");
-    constOut.push(<input type="text" id={`const${j + 1}-rhs`} />);
+    constOut.push(
+      <input
+        type="text"
+        id={`rhs-${j + 1}`}
+        value={constRHS[j]}
+        onChange={handleNumberChange}
+      />
+    );
     constOut.push(<br></br>);
 
     return constOut;

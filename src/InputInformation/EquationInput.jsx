@@ -17,34 +17,39 @@ export default class EquationInput extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      numVar: 2,
-      numConst: 3,
-      obj: "maximize",
-      objCoef: [],
-      constCoef: [],
-      constType: [],
-      constRHS: [],
+      modelData: {
+        numVar: 2,
+        numConst: 3,
+        obj: "maximize",
+        objCoef: [],
+        constCoef: [],
+        constType: [],
+        constRHS: [],
+      },
+      simplexVisuals: null,
       modelValid: false,
     };
   }
+
   /************************************************/
   addVar() {
-    const { numVar, objCoef, constCoef } = this.state;
-    if (numVar > 3) {
+    const { numVar, objCoef, constCoef } = this.state.modelData;
+    if (numVar === 2) {
       console.log("max number of variables reached!");
       return;
     }
     objCoef.push("");
     constCoef.forEach((row) => row.push(""));
     this.setState({
-      numVar: numVar + 1,
-      objCoef: objCoef,
-      constCoef: constCoef,
-      modelValid: false,
+      modelData: {
+        ...this.state.modelData,
+        numVar: numVar + 1,
+        modelValid: false,
+      },
     });
   }
   removeVar() {
-    const { numVar, objCoef, constCoef } = this.state;
+    const { numVar, objCoef, constCoef } = this.state.modelData;
     if (numVar === 1) {
       console.log("var cannot drop below 1!");
       return;
@@ -52,14 +57,21 @@ export default class EquationInput extends Component {
     objCoef.pop();
     constCoef.forEach((row) => row.pop());
     this.setState({
-      numVar: numVar - 1,
-      objCoef: objCoef,
-      constCoef: constCoef,
-      modelValid: false,
+      modelData: {
+        ...this.state.modelData,
+        numVar: numVar - 1,
+        modelValid: false,
+      },
     });
   }
   addConst() {
-    const { numVar, numConst, constCoef, constType, constRHS } = this.state;
+    const {
+      numVar,
+      numConst,
+      constCoef,
+      constType,
+      constRHS,
+    } = this.state.modelData;
     if (numConst > 99) {
       console.log("max number of constraints reached!");
       return;
@@ -68,15 +80,15 @@ export default class EquationInput extends Component {
     constType.push("less");
     constRHS.push("");
     this.setState({
-      numConst: numConst + 1,
-      constCoef: constCoef,
-      constType: constType,
-      constRHS: constRHS,
-      modelValid: false,
+      modelData: {
+        ...this.state.modelData,
+        numConst: numConst + 1,
+        modelValid: false,
+      },
     });
   }
   removeConst() {
-    const { numConst, constCoef, constType, constRHS } = this.state;
+    const { numConst, constCoef, constType, constRHS } = this.state.modelData;
     if (numConst === 1) {
       console.log("constraints cannot drop below 1!");
       return;
@@ -85,18 +97,21 @@ export default class EquationInput extends Component {
     constType.pop();
     constRHS.pop();
     this.setState({
-      numConst: numConst - 1,
-      constCoef: constCoef,
-      constType: constType,
-      constRHS: constRHS,
-      modelValid: false,
+      modelData: {
+        ...this.state.modelData,
+        numConst: numConst - 1,
+        modelValid: false,
+      },
     });
   }
   /************************************************/
   handleObjTypeChange = (e) => {
     console.log("changed this", e.target.id);
     this.setState({
-      obj: e.target.value,
+      modelData: {
+        ...this.state.modelData,
+        obj: e.target.value,
+      },
       modelValid: false,
     });
   };
@@ -107,92 +122,123 @@ export default class EquationInput extends Component {
       e.target.value !== undefined &&
       e.target.value !== ""
     ) {
+      alert("non-numbers unallowed");
       console.log("non-numbers unallowed");
       e.preventDefault();
       return;
     }
     const id = e.target.id;
     const first = id.indexOf("-", 0);
+    const modelData = { ...this.state.modelData };
+
     if (id.includes("rhs")) {
-      const { constRHS } = this.state;
+      const { constRHS } = this.state.modelData;
       const index = parseInt(id.substring(first + 1));
+
       constRHS[index - 1] = e.target.value;
-      this.setState({
-        constRHS: constRHS,
-        modelValid: false,
-      });
+      modelData.constRHS = constRHS;
     } else if (id.includes("xc")) {
-      const { constCoef } = this.state;
+      const { constCoef } = this.state.modelData;
       const second = id.indexOf("-", first + 1);
       const i_index = parseInt(id.substring(first + 1, second));
       const j_index = parseInt(id.substring(second + 1));
 
       constCoef[j_index - 1][i_index - 1] = e.target.value;
-      this.setState({
-        constCoef: constCoef,
-        modelValid: false,
-      });
+      modelData.constCoef = constCoef;
     } else {
-      const { objCoef } = this.state;
+      const { objCoef } = this.state.modelData;
       const index = parseInt(id.substring(first + 1));
+
       objCoef[index - 1] = e.target.value;
-      this.setState({
-        objCoef: objCoef,
-        modelValid: false,
-      });
+      modelData.objCoef = objCoef;
     }
+
+    this.setState({
+      modelData: modelData,
+      modelValid: false,
+    });
+
     console.log("changed number: ", id, e.target.value);
   };
 
   handleConstTypeChange = (e) => {
-    const { constType } = this.state;
+    const { constType } = this.state.modelData;
     const index = parseInt(e.target.id.substring(6));
     constType[index - 1] = e.target.value;
     this.setState({
-      constType: constType,
+      modelData: {
+        ...this.state.modelData,
+      },
       modelValid: false,
     });
     console.log("changed constraint type:", e.target.id, e.target.value);
   };
   /************************************************/
   submitModel() {
-    const { numVar,numConst, obj,objCoef, constCoef,constType,constRHS } = this.state;
-    
-    //THIS IS WHERE BACKEND COMMUNICATION OCCURS
+    const { modelData } = this.state;
+    const augmentedModel = augmentModel(modelData);
+    console.log(augmentedModel);
+    console.log(modelData);
+    //will send {modelData:modelData, augmentedModel: augmentedModel}
 
-    //this.setState({modelValid:true});
+    //https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch
+    fetch("/dataReceive", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ modelData: modelData, augmentedModel:augmentedModel }),
+    })
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          console.log("msg:", result.msg);
+          console.log(result.summary);
+          console.log(result.augmented_form);
+          console.log(result.testimport);
+        },
+        (error) => {
+          console.log("error", error);
+        }
+      );
+
+    this.setState({ modelValid: true });
   }
   /************************************************/
   componentDidMount() {
-    const { numVar, numConst } = this.state;
-
+    //this is a temporary test set up
+    this.setState({
+      modelData: {
+        ...this.state.modelData,
+        objCoef: defaultObjC,
+        constCoef: defaultConstC,
+        constType: defaultConstType,
+        constRHS: defaultConstRHS,
+      },
+    });
+    /*
+    const { numVar, numConst } = this.state.modelData;
     const objCoef = initObjFunc(numVar);
     const constRHS = initObjFunc(numConst);
     const constType = initConstType(numConst);
     const constCoef = initConstFunc(numVar, numConst);
-
-    //this is a test
     this.setState({
-      objCoef: defaultObjC,
-      constCoef: defaultConstC,
-      constType: defaultConstType,
-      constRHS: defaultConstRHS,
+      modelData: {
+        objCoef: objCoef,
+        constCoef: constCoef,
+        constType: constType,
+        constRHS: constRHS,
+        ...this.state.modelData,
+      },
     });
-    //this.setState({objCoef: objCoef, constCoef:constCoef, constType:constType constRHS:constRHS});
+    */
   }
 
   componentDidUpdate() {}
   /************************************************/
   render() {
-    const {
-      numVar,
-      numConst,
-      objCoef,
-      constCoef,
-      constType,
-      constRHS,
-      modelValid,
-    } = this.state;
+    const { modelData, modelValid } = this.state;
+    const { numVar, obj, objCoef, constCoef, constType, constRHS } = modelData;
 
     return (
       <div className="simplex">
@@ -200,7 +246,7 @@ export default class EquationInput extends Component {
           <select
             name="optimization"
             id="optType"
-            value={this.state.obj}
+            value={obj}
             onChange={this.handleObjTypeChange.bind(this)}
           >
             <option value="maximize">Max</option>
@@ -233,9 +279,16 @@ export default class EquationInput extends Component {
         </div>
         <div className="split right">
           {modelValid ? (
-            <D3Component yfunc={(x) => YFUNCTION(x) } modelValid={modelValid} objCoef={objCoef} constCoef={constCoef} constRHS={constRHS} ></D3Component>
+            <D3Component
+              yfunc={(x) => YFUNCTION(x)}
+              modelValid={modelValid}
+              modelData={modelData}
+            ></D3Component>
           ) : (
-            <D3Component yfunc={(x) => YFUNCTION(x)} modelValid={modelValid}></D3Component>
+            <D3Component
+              yfunc={(x) => YFUNCTION(x)}
+              modelValid={modelValid}
+            ></D3Component>
           )}
         </div>
       </div>
@@ -366,4 +419,60 @@ const constraints = (
 
     return constOut;
   });
+};
+
+/**
+ *
+ * @param {*} modelData
+ */
+const augmentModel = (modelData) => {
+  const augmentedModel =JSON.parse(JSON.stringify(modelData));
+  let {numVar}= augmentedModel;
+  const {
+    obj,
+    numConst,
+    objCoef,
+    constCoef,
+    constType,
+  } = augmentedModel;
+
+  let multi=-1;
+  if(obj==="minimize") multi=1;
+  const M = 9999;
+
+  const realVar=[];
+  for(let i=0;i<numVar;i++) realVar.push(1);
+
+  for (let i = 0; i < numConst; i++) {
+    numVar = numVar + 1;
+    objCoef.push(0);
+    realVar.push(0);
+    constCoef.forEach((row) => row.push(0));
+    switch (constType[i]) {
+      case "great":
+        constType[i] = "equal";
+        constCoef[i][numVar - 1] = -1;
+        //need to add one more var
+        numVar = numVar + 1;
+        objCoef.push(0);
+        realVar.push(0);
+        constCoef.forEach((row) => row.push(0));
+        constCoef[i][numVar - 1] = 1;
+        objCoef[numVar - 1] = multi * M;
+        break;
+      case "equal":
+        constCoef[i][numVar - 1] = 1;
+        objCoef[numVar - 1] = multi * M;
+        break;
+      default:
+        constType[i] = "equal";
+        constCoef[i][numVar - 1] = 1;
+    }
+  }
+  return {
+    ...augmentedModel,
+    numVar: numVar,
+    numConst: numConst,
+    realVar: realVar
+  };
 };

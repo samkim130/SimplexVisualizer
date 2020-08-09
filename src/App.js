@@ -6,6 +6,7 @@ import EquationInput from "./InputInformation/EquationInput.jsx";
 
 
 function App() {
+  /*
   const [currentTime, setCurrentTime] = useState(0);
 
   useEffect(() => {
@@ -15,10 +16,9 @@ function App() {
         setCurrentTime(data.time);
       });
   }, []);
-
+*/
   return (
     <div className="App">
-      <div>The current time is {currentTime}.</div>
       <EquationInput></EquationInput>
     </div>
   );

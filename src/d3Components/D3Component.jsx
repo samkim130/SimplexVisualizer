@@ -1,17 +1,21 @@
 import React, { Component } from "react";
 import * as d3 from "d3";
 import "./D3Component.css";
+//import { set } from "d3";
+/**
+ * maybe add linear algebra calculation to calculate valid points
+ */
 
-const WIDTH = 700;
-const HEIGHT = 500;
-const MARGIN = { top: 10, right: 10, bottom: 20, left: 30 };
+const WIDTH = 730;
+const HEIGHT = 520;
+const MARGIN = { top: 10, right: 10, bottom: 30, left: 40 };
 const INNER_WIDTH = WIDTH - MARGIN.left - MARGIN.right;
 const INNER_HEIGHT = HEIGHT - MARGIN.top - MARGIN.bottom;
-const X_DOMAIN = [-10, 50];
-const Y_DOMAIN = [-50, 20];
+const X_DOMAIN = [-10, 30];
+const Y_DOMAIN = [-20, 30];
 const X_SCALE = d3.scaleLinear().domain(X_DOMAIN).range([0, INNER_WIDTH]);
 const Y_SCALE = d3.scaleLinear().domain(Y_DOMAIN).range([INNER_HEIGHT, 0]);
-const WALKINGLINE = d3
+const DEFAULT_LINE = d3
   .line()
   .x((d) => X_SCALE(d.x))
   .y((d) => Y_SCALE(d.y));
@@ -23,10 +27,11 @@ export default class D3Component extends Component {
     this.myRef = React.createRef();
     this.state = {
       walkingValues: [],
+      svg: null,
     };
   }
 
-  showGraph(xVal) {
+  graphSetUp() {
     const svg = d3
       .select("#grid")
       .append("svg")
@@ -34,7 +39,7 @@ export default class D3Component extends Component {
       .attr("height", HEIGHT)
       .append("g")
       .attr("transform", "translate(" + MARGIN.left + "," + MARGIN.top + ")");
-
+    this.setState({ svg: svg });
     const xAxis = d3.axisBottom(X_SCALE).ticks(10);
     const yAxis = d3.axisLeft(Y_SCALE).ticks(10);
     const xAxisGrid = d3
@@ -63,28 +68,35 @@ export default class D3Component extends Component {
       .call(xAxis);
     svg.append("g").attr("class", "y axis").call(yAxis);
 
-    //add line
-    //const line = d3.line().x((d) => x(d)).y((d) => y(yfunc(d)));
-
-    //const values = genXvals(xDomain, yfunc);
-    //console.log(values);
-    //console.log(walkinLine(walkingValues));
-    //line(values);
+    // AXIS label
     svg
-      .append("path")
-      .attr("id", "graph1")
-      .attr("d", WALKINGLINE(xVal))
-      .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 3.5);
+      .append("text")
+      .attr("class", "x label")
+      .attr("text-anchor", "end")
+      .attr("x", MARGIN.left + INNER_WIDTH / 2)
+      .attr("y", HEIGHT - MARGIN.top)
+      .attr("font-weight", "bold")
+      .attr("font-size", "22px")
+      .text("X1");
+    svg
+      .append("text")
+      .attr("class", "y label")
+      .attr("text-anchor", "end")
+      .attr("x", -MARGIN.top - INNER_HEIGHT / 2)
+      .attr("y", -MARGIN.left - 1)
+      .attr("dy", ".75em")
+      .attr("transform", "rotate(-90)")
+      .attr("font-weight", "bold")
+      .attr("font-size", "22px")
+      .text("X2");
 
     //make 0 axes bold
     svg
       .append("path")
-      .attr("id", "x-axis")
+      .attr("id", "x-axis-bolded")
       .attr(
         "d",
-        WALKINGLINE([
+        DEFAULT_LINE([
           { x: X_DOMAIN[0] - (X_DOMAIN[1] - X_DOMAIN[0]) / 120, y: 0 },
           { x: X_DOMAIN[1], y: 0 },
         ])
@@ -94,10 +106,10 @@ export default class D3Component extends Component {
       .attr("stroke-width", 3.5);
     svg
       .append("path")
-      .attr("id", "x-axis")
+      .attr("id", "y-axis-bolded")
       .attr(
         "d",
-        WALKINGLINE([
+        DEFAULT_LINE([
           { x: 0, y: Y_DOMAIN[0] - (Y_DOMAIN[1] - Y_DOMAIN[0]) / 80 },
           { x: 0, y: Y_DOMAIN[1] },
         ])
@@ -105,30 +117,34 @@ export default class D3Component extends Component {
       .attr("fill", "none")
       .attr("stroke", "black")
       .attr("stroke-width", 3.5);
+
+    svg.append("g").attr("id", "equations-imported");
+  }
+
+  graphDraw() {
+    const { svg } = this.state;
+    const { modelData, modelValid } = this.props;
+    if (modelValid) {
+      d3.select("#equations-imported").selectAll("polygon").remove();
+      d3.select("#equations-imported").selectAll("path").remove();
+      console.log("model passed");
+      createGraphics(svg, modelData);
+      //createPolygons(svg,modelData);
+    }
   }
 
   componentDidMount() {
     console.log("mounted");
-    const walkingValues = genWalkingData(X_DOMAIN, this.props.yfunc, PRECISION);
-
-    this.showGraph(walkingValues.slice(0, 1));
-
-    for (let i = 1; i < walkingValues.length; i++) {
-      const tempVal = walkingValues.slice(0, i + 1);
-      //setTimeout(() => {
-      this.setState({
-        walkingValues: tempVal,
-      });
-      //}, 10 * i/PRECISION);
-    }
+    //const walkingValues = genCurvedGraphData(X_DOMAIN, this.props.yfunc, PRECISION);
+    this.graphSetUp();
   }
 
   componentDidUpdate() {
-    //console.log("updated");
-    const walkingValueSnapShot = this.state.walkingValues;
+    console.log("graph updated");
+    this.graphDraw();
+    //const walkingValueSnapShot = this.state.walkingValues;
     //console.log("walkingValuesSnapShot: ", walkingValueSnapShot);
-    d3.select("#grid").select("svg").remove();
-    this.showGraph(walkingValueSnapShot);
+    //this.showGraph(walkingValueSnapShot);
   }
 
   render() {
@@ -137,7 +153,7 @@ export default class D3Component extends Component {
   }
 }
 
-const genWalkingData = (xDomain, yfunc, precision) => {
+const genCurvedGraphData = (xDomain, yfunc, precision) => {
   //replay;
   const data = [];
   for (let i = xDomain[0] * precision; i <= xDomain[1] * precision; i++) {
@@ -149,24 +165,138 @@ const genWalkingData = (xDomain, yfunc, precision) => {
   return data;
 };
 
-const genXvals = (xDomain, yfunc) => {
-  const values = [];
-  for (let i = xDomain[0]; i <= xDomain[1]; i++) {
-    values.push(i);
-    const y = yfunc(i);
-    if ((y !== 0 && !y) || y === Infinity || y === -Infinity) values.pop();
-  }
-
-  return values;
+const returnFunc = (ind, numVar, coeff, RHS) => {
+  const func = (a) => {
+    if (coeff[ind - 1] === 0) return null;
+    let val = RHS / coeff[ind - 1];
+    for (let i = 0; i < numVar; i++)
+      if (ind - 1 !== i) val += (-1 * coeff[i] * a) / coeff[ind - 1];
+    return val;
+  };
+  return func;
 };
 
-const genYvals = (xVals, yfunc) => {
-  const values = [];
-  for (let x in xVals) {
-    values.push(yfunc(x));
-    //values.push(i);
-    //if(yfunc(i)==null || yfunc(i)=== Infinity) values.pop();
-  }
+const coordEnclosed = (yFunc, xFunc) => {
+  const points = [];
 
-  return values;
+  const x_lim1 = yFunc(X_DOMAIN[0]);
+  const x_lim2 = yFunc(X_DOMAIN[1]);
+  const y_lim1 = xFunc(Y_DOMAIN[0]);
+  const y_lim2 = xFunc(Y_DOMAIN[1]);
+
+  if (Y_DOMAIN[0] <= x_lim1 && x_lim1 <= Y_DOMAIN[1])
+    points.push({ x: X_DOMAIN[0], y: x_lim1 });
+  if (X_DOMAIN[0] < y_lim1 && y_lim1 < X_DOMAIN[1])
+    points.push({ x: y_lim1, y: Y_DOMAIN[0] });
+  if (Y_DOMAIN[0] <= x_lim2 && x_lim2 <= Y_DOMAIN[1])
+    points.push({ x: X_DOMAIN[1], y: x_lim2 });
+  if (X_DOMAIN[0] < y_lim2 && y_lim2 < X_DOMAIN[1])
+    points.push({ x: y_lim2, y: Y_DOMAIN[1] });
+
+  return points;
+};
+
+const genEndPoints = (coordinates, i, modelData) => {
+  const endpts = coordinates.slice();
+  const checkpoints = [
+    { x: X_DOMAIN[0], y: Y_DOMAIN[0] },
+    { x: X_DOMAIN[1], y: Y_DOMAIN[0] },
+    { x: X_DOMAIN[1], y: Y_DOMAIN[1] },
+    { x: X_DOMAIN[0], y: Y_DOMAIN[1] },
+  ];
+  const coef = modelData.constCoef[i];
+  const type = modelData.constType[i];
+  const RHS = modelData.constRHS[i];
+  for (const pts of checkpoints) {
+    const LHS = coef[0] * pts.x + coef[1] * pts.y;
+    if (type === "less" && LHS <= RHS) endpts.push(pts);
+    if (type === "great" && LHS >= RHS) endpts.push(pts);
+  }
+  console.log(endpts);
+  return endpts;
+};
+
+const reorderPts = (endPts) => {
+  const endPts_copy = endPts.slice();
+  const ordered = [endPts_copy.shift()];
+  while (endPts_copy.length > 0) {
+    const len = endPts_copy.length;
+    let min_dist = -1;
+    let ind = -1;
+    for (let i = 0; i < len; i++) {
+      const dist = Math.sqrt(
+        Math.pow(ordered[ordered.length - 1].x - endPts_copy[i].x, 2) +
+          Math.pow(ordered[ordered.length - 1].y - endPts_copy[i].y, 2)
+      );
+      if (min_dist < 0 || min_dist > dist) {
+        min_dist = dist;
+        ind = i;
+      }
+    }
+    ordered.push(endPts_copy[ind]);
+    endPts_copy.splice(ind, 1);
+  }
+  console.log(ordered);
+  return ordered;
+};
+
+const returnStringCoord = (points) => {
+  return points
+    .map((pt) => {
+      return [X_SCALE(pt.x), Y_SCALE(pt.y)].join(",");
+    })
+    .join(" ");
+};
+
+const createGraphics = (svg, modelData) => {
+  for (let i = 0; i < modelData.numConst; i++) {
+    const gColor = d3.color(
+      d3.rgb(
+        100 + (i === 0 ? 100 : 0),
+        100 + (i === 1 ? 100 : 0),
+        100 + (i === 2 ? 100 : 0)
+      )
+    );
+    const coordinates = coordEnclosed(
+      returnFunc(
+        2,
+        modelData.numVar,
+        modelData.constCoef[i],
+        modelData.constRHS[i]
+      ),
+      returnFunc(
+        1,
+        modelData.numVar,
+        modelData.constCoef[i],
+        modelData.constRHS[i]
+      )
+    );
+    console.log(coordinates);
+
+    createLine(svg, coordinates, i, gColor);
+    if (modelData.constType[i] !== "equal")
+      createIneqPolygon(svg, modelData, coordinates, i, gColor);
+  }
+};
+
+const createLine = (svg, coordinates, i, gColor) => {
+  svg
+    .select("#equations-imported")
+    .append("path")
+    .attr("id", `const-${i}`)
+    .attr("d", DEFAULT_LINE(coordinates))
+    .attr("fill", "none")
+    .attr("stroke", gColor)
+    .attr("stroke-width", 3.5);
+};
+
+const createIneqPolygon = (svg, modelData, coordinates, i, gColor) => {
+  const endpts = reorderPts(genEndPoints(coordinates, i, modelData));
+  svg
+    .select("#equations-imported")
+    .append("polygon")
+    .attr("id", `poly-${i}`)
+    .attr("points", returnStringCoord(endpts))
+    .attr("fill", gColor)
+    .attr("opacity", "0.2");
 };

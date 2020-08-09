@@ -1,8 +1,45 @@
 import time
-from flask import Flask
+from flask import Flask,json, request, render_template
+from dataclasses import dataclass
+from Algorithm.simplex import solveSimplex
 
 app = Flask(__name__)
 
 @app.route('/time')
 def get_current_time():
     return {'time': time.time()}
+
+@app.route("/dataReceive", methods=['GET', 'POST'])
+def get_data():
+    if request.method == 'POST':                                  
+        data = json.loads(request.data)
+        ss = "received the model data" 
+        #app.logger.info("show model data: ",json.dumps(data))
+
+        solution= solveSimplex(data['augmentedModel'],app.logger);
+        #solution = "ha"
+
+        response ={
+            'msg': ss,
+            'summary': ("This is what backend received:\n\n"+printSimplex(data['modelData'])),
+            'augmented_form': ("This is the augmented form :\n\n"+printSimplex(data['augmentedModel'])),
+            'testimport':solution
+        }
+        return json.dumps(response)
+    return "error: this is only a POST method"
+
+if __name__ == '__main__':
+    app.run(debug=True)
+    
+def printSimplex(modelData):
+    text= (modelData['obj'] + " : ")
+    numVar= modelData["numVar"]
+    text+= "".join([(str(modelData["objCoef"][i])+"*X"+str(i+1)+" + ") if i+1<numVar else (str(modelData["objCoef"][i])+"*X"+str(i+1)) for i in range(numVar)])
+    text+= "\nconstraints:\n"
+    for j in range(modelData["numConst"]):
+        constCoef=modelData["constCoef"][j]
+        text+= ("\t"+"".join([(str(constCoef[i])+"*X"+str(i+1)+" + ") if i+1<numVar else (str(constCoef[i])+"*X"+str(i+1)) for i in range(numVar)]))
+        text+={"less":" <= ","equal": " = ", "great": " >= "}.get( modelData["constType"][j] ,"invalid data")
+        text+=(str(modelData["constRHS"][j])+"\n")
+    return text
+

@@ -185,7 +185,7 @@ export default class EquationInput extends Component {
     console.log(augmentedModel);
     console.log(modelData);
 
-    let response = await fetch("/dataReceive", {
+    let response = await fetch(backendURL+"/dataReceive", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

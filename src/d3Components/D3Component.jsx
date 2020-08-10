@@ -19,7 +19,7 @@ const DEFAULT_LINE = d3
   .line()
   .x((d) => X_SCALE(d.x))
   .y((d) => Y_SCALE(d.y));
-const PRECISION = 100;
+//const PRECISION = 100;
 
 export default class D3Component extends Component {
   constructor(props) {
@@ -123,13 +123,14 @@ export default class D3Component extends Component {
 
   graphDraw() {
     const { svg } = this.state;
-    const { modelData, modelValid } = this.props;
+    const { modelData, modelValid, modelResult } = this.props;
     if (modelValid) {
       d3.select("#equations-imported").selectAll("polygon").remove();
       d3.select("#equations-imported").selectAll("path").remove();
+      d3.select("#equations-imported").selectAll("circel").remove();
       console.log("model passed");
       createGraphics(svg, modelData);
-      //createPolygons(svg,modelData);
+      createDots(svg, modelResult);
     }
   }
 
@@ -212,7 +213,7 @@ const genEndPoints = (coordinates, i, modelData) => {
     if (type === "less" && LHS <= RHS) endpts.push(pts);
     if (type === "great" && LHS >= RHS) endpts.push(pts);
   }
-  console.log(endpts);
+  //console.log(endpts);
   return endpts;
 };
 
@@ -236,7 +237,7 @@ const reorderPts = (endPts) => {
     ordered.push(endPts_copy[ind]);
     endPts_copy.splice(ind, 1);
   }
-  console.log(ordered);
+  //console.log(ordered);
   return ordered;
 };
 
@@ -271,7 +272,7 @@ const createGraphics = (svg, modelData) => {
         modelData.constRHS[i]
       )
     );
-    console.log(coordinates);
+    //console.log(coordinates);
 
     createLine(svg, coordinates, i, gColor);
     if (modelData.constType[i] !== "equal")
@@ -299,4 +300,23 @@ const createIneqPolygon = (svg, modelData, coordinates, i, gColor) => {
     .attr("points", returnStringCoord(endpts))
     .attr("fill", gColor)
     .attr("opacity", "0.2");
+};
+
+const createDots = (svg, modelResult) => {
+  if (!modelResult.problemSolved) return;
+  console.log("points graphed");
+  for (let i = 0; i < modelResult.iteratedSol.length; i++) {
+    setTimeout(function () {
+      const sol = modelResult.iteratedSol[i];
+      svg
+        .select("#equations-imported")
+        .append("circle")
+        .attr("id", `solution-${i}`)
+        .attr("r", 5)
+        .attr("fill", "yellow")
+        //.attr("opacity", "0.2")
+        .attr("cx", X_SCALE(sol[0]))
+        .attr("cy", Y_SCALE(sol[1]));
+    }, i * 500);
+  }
 };

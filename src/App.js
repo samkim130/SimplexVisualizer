@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import "./App.css";
 import EquationInput from "./InputInformation/EquationInput.jsx";
 //import P5Component from './p5Components/P5Component.jsx';

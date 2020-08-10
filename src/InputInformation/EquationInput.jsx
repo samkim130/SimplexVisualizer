@@ -28,6 +28,11 @@ export default class EquationInput extends Component {
       },
       simplexVisuals: null,
       modelValid: false,
+      modelResult: {
+        problemSolved: false,
+        augmentedModel: null,
+        iteratedSol: [],
+      },
     };
   }
 
@@ -174,36 +179,45 @@ export default class EquationInput extends Component {
     console.log("changed constraint type:", e.target.id, e.target.value);
   };
   /************************************************/
-  submitModel() {
-    const { modelData } = this.state;
+  async submitModel() {
+    const { modelData, modelResult } = this.state;
     const augmentedModel = augmentModel(modelData);
     console.log(augmentedModel);
     console.log(modelData);
-    //will send {modelData:modelData, augmentedModel: augmentedModel}
 
-    //https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch
-    fetch("/dataReceive", {
+    let response = await fetch("/dataReceive", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ modelData: modelData, augmentedModel:augmentedModel }),
-    })
-      .then((res) => res.json())
-      .then(
-        (result) => {
-          console.log("msg:", result.msg);
-          console.log(result.summary);
-          console.log(result.augmented_form);
-          console.log(result.testimport);
-        },
-        (error) => {
-          console.log("error", error);
-        }
-      );
+      body: JSON.stringify({
+        modelData: modelData,
+        augmentedModel: augmentedModel,
+      }),
+    });
+    if (response.ok) {
+      let json = await response.json();
 
-    this.setState({ modelValid: true });
+      console.log("msg:", json.msg);
+      console.log(json.summary);
+      console.log(json.augmented_form);
+      console.log(json.testimport);
+
+      const { problemSolved, iteratedSol } = json.testimport;
+      modelResult.problemSolved = problemSolved;
+      modelResult.augmentedModel = augmentedModel;
+      modelResult.iteratedSol = iteratedSol;
+
+      this.setState({
+        modelValid: true,
+        modelResult: modelResult,
+      });
+    } else {
+      console.log("HTTP-Error: " + response.status);
+      this.setState({ modelValid: false, modelResult: modelResult });
+    }
   }
+
   /************************************************/
   componentDidMount() {
     //this is a temporary test set up
@@ -237,7 +251,7 @@ export default class EquationInput extends Component {
   componentDidUpdate() {}
   /************************************************/
   render() {
-    const { modelData, modelValid } = this.state;
+    const { modelData, modelValid, modelResult } = this.state;
     const { numVar, obj, objCoef, constCoef, constType, constRHS } = modelData;
 
     return (
@@ -283,6 +297,7 @@ export default class EquationInput extends Component {
               yfunc={(x) => YFUNCTION(x)}
               modelValid={modelValid}
               modelData={modelData}
+              modelResult={modelResult}
             ></D3Component>
           ) : (
             <D3Component
@@ -426,22 +441,15 @@ const constraints = (
  * @param {*} modelData
  */
 const augmentModel = (modelData) => {
-  const augmentedModel =JSON.parse(JSON.stringify(modelData));
-  let {numVar}= augmentedModel;
-  const {
-    obj,
-    numConst,
-    objCoef,
-    constCoef,
-    constType,
-  } = augmentedModel;
+  const augmentedModel = JSON.parse(JSON.stringify(modelData));
+  let { numVar } = augmentedModel;
+  const { obj, numConst, objCoef, constCoef, constType } = augmentedModel;
 
-  let multi=-1;
-  if(obj==="minimize") multi=1;
+  if (obj === "minimize")
+    for (let i = 0; i < numVar; i++) objCoef[i] = -1 * objCoef[i];
   const M = 9999;
-
-  const realVar=[];
-  for(let i=0;i<numVar;i++) realVar.push(1);
+  const realVar = [];
+  for (let i = 0; i < numVar; i++) realVar.push(1);
 
   for (let i = 0; i < numConst; i++) {
     numVar = numVar + 1;
@@ -458,11 +466,11 @@ const augmentModel = (modelData) => {
         realVar.push(0);
         constCoef.forEach((row) => row.push(0));
         constCoef[i][numVar - 1] = 1;
-        objCoef[numVar - 1] = multi * M;
+        objCoef[numVar - 1] = -1 * M;
         break;
       case "equal":
         constCoef[i][numVar - 1] = 1;
-        objCoef[numVar - 1] = multi * M;
+        objCoef[numVar - 1] = -1 * M;
         break;
       default:
         constType[i] = "equal";
@@ -473,6 +481,6 @@ const augmentModel = (modelData) => {
     ...augmentedModel,
     numVar: numVar,
     numConst: numConst,
-    realVar: realVar
+    realVar: realVar,
   };
 };

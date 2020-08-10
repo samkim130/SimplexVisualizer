@@ -24,7 +24,6 @@ def solveSimplex(model,logger):
     count=1
     
     # solution iteration
-    #print("Beginning basic variable columns",B,sep="\n")
     while(check):
         B_inv_A =np.dot(np.linalg.inv(B),A)
         B_inv_b_T =np.dot(np.linalg.inv(B),b.T)
@@ -36,33 +35,24 @@ def solveSimplex(model,logger):
         new_C=np.subtract(np.dot(C_B,B_inv_A),C)
         Z=np.dot(C_B,B_inv_b_T)
         
-        #logger.info("inverse matrix B times matrix A",B_inv_A, sep="\n")
-        #logger.info("\ninverse matrix B times inverted b",B_inv_b_T,sep="\n")
-        #logger.info("\ncoefficients of Basic variables",C_B,sep="\n")
-        #logger.info("\nnew coefficients",new_C,sep="\n")
-        #logger.info("\ntemp sol",Z)
         check=np.any(new_C<0)
         
         if(check):
             new_index_C=np.argmin(new_C)
-            #logger.info("\nnew variable coming in : ",varlist[new_index_C])
             extracted_col=B_inv_A[:,[new_index_C]]
-            #logger.info("\ncolumn from constraints : ",extracted_col,sep="\n")
             for i in range(len(extracted_col)):
                 if(extracted_col[i,0]<0):
                     extracted_col[i,0]=0        
             B_index_leave= np.argmin(np.divide(B_inv_b_T,extracted_col))
             B=newB(B,B_index_leave,A,B_index,new_index_C)
-            #logger.info("\nnew basic variable columns",B,sep="\n")
-        
-        #logger.info("\nend of iteration #",count)
-        #logger.info("*******************************************\n\n")
+
         if(count>100):
             {'problemSolved':False,'iteratedSol': solTracker}
             break
         count+=1
 
     return {'problemSolved':True,'iteratedSol': solTracker}
+
 
 # basic variable set for the start
 def basicVarStart(C,A):

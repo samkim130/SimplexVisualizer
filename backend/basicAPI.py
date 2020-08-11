@@ -1,7 +1,7 @@
 import time
 from flask import Flask,json, request, render_template
 from dataclasses import dataclass
-from Algorithm.simplex import solveSimplex
+from .Algorithm.simplex import solveSimplex
 
 '''
 https://medium.com/swlh/how-to-deploy-a-react-python-flask-project-on-heroku-edb99309311

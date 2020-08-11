@@ -2,8 +2,6 @@ import React, { Component } from "react";
 import D3Component from "../d3Components/D3Component.jsx";
 import "./EquationInput.css";
 
-const YFUNCTION = (x) => Math.log(1) + Math.log(x);
-
 const defaultObjC = [5, 4];
 const defaultConstC = [
   [2, 1],
@@ -299,16 +297,12 @@ export default class EquationInput extends Component {
         <div className="split right">
           {modelValid ? (
             <D3Component
-              yfunc={(x) => YFUNCTION(x)}
               modelValid={modelValid}
               modelData={modelData}
               modelResult={modelResult}
             ></D3Component>
           ) : (
-            <D3Component
-              yfunc={(x) => YFUNCTION(x)}
-              modelValid={modelValid}
-            ></D3Component>
+            <D3Component modelValid={modelValid}></D3Component>
           )}
         </div>
       </div>
@@ -356,10 +350,11 @@ const initConstType = (numConst) => {
  * @param {*} handleNumberChange
  */
 const objFunc = (objCoef, numVar, handleNumberChange) => {
-  return objCoef.map((coeff, i) => {
+  return  objCoef.map((coeff, i) => {
     const objOut = [];
     objOut.push(
       <input
+        key={`input-x-${i + 1}`}
         type="text"
         id={`x-${i + 1}`}
         value={coeff}
@@ -367,7 +362,7 @@ const objFunc = (objCoef, numVar, handleNumberChange) => {
       />
     );
     objOut.push(
-      <label htmlFor={`x-${i + 1}`}>
+      <label key={`label-x-${i + 1}`} htmlFor={`x-${i + 1}`}>
         {` * `}
         <b>x{i + 1} </b>
       </label>
@@ -394,50 +389,51 @@ const constraints = (
   handleConstTypeChange
 ) => {
   return constCoef.map((constArray, j) => {
-    const constOut = constArray.map((coeff, i) => {
-      const varOut = [];
-      varOut.push(
+    return (
+      <div key ={`constraint-${j}`}>
+        {constArray.map((coeff, i) => {
+          const varOut = [];
+          varOut.push(
+            <input
+              key={`input-xc-${i + 1}-${j + 1}`}
+              type="text"
+              id={`xc-${i + 1}-${j + 1}`}
+              value={coeff}
+              onChange={handleNumberChange}
+            />
+          );
+          varOut.push(
+            <label
+              key={`label-xc-${i + 1}-${j + 1}`}
+              htmlFor={`xc-${i + 1}-${j + 1}`}
+            >
+              {` * `}
+              <b>x{i + 1} </b>
+            </label>
+          );
+          if (i + 1 < numVar) varOut.push("+ ");
+          return varOut;
+        })}
+        <select
+          key={`select-constraint-${j + 1}`}
+          name={`ctype-${j + 1}`}
+          id={`ctype-${j + 1}`}
+          value={constType[j]}
+          onChange={handleConstTypeChange}
+        >
+          <option key="less" value="less">{`<=`}</option>
+          <option key="equal" value="equal">{`=`}</option>
+          <option key="great" value="great">{`>=`}</option>
+        </select>{" "}
         <input
+          key={`input-rhs-${j + 1}`}
           type="text"
-          id={`xc-${i + 1}-${j + 1}`}
-          value={coeff}
+          id={`rhs-${j + 1}`}
+          value={constRHS[j]}
           onChange={handleNumberChange}
         />
-      );
-      varOut.push(
-        <label htmlFor={`xc-${i + 1}-${j + 1}`}>
-          {` * `}
-          <b>x{i + 1} </b>
-        </label>
-      );
-      if (i + 1 < numVar) varOut.push("+ ");
-      return varOut;
-    });
-
-    constOut.push(
-      <select
-        name={`ctype-${j + 1}`}
-        id={`ctype-${j + 1}`}
-        value={constType[j]}
-        onChange={handleConstTypeChange}
-      >
-        <option value="less">{`<=`}</option>
-        <option value="equal">{`=`}</option>
-        <option value="great">{`>=`}</option>
-      </select>
+      </div>
     );
-    constOut.push(" ");
-    constOut.push(
-      <input
-        type="text"
-        id={`rhs-${j + 1}`}
-        value={constRHS[j]}
-        onChange={handleNumberChange}
-      />
-    );
-    constOut.push(<br></br>);
-
-    return constOut;
   });
 };
 

@@ -3,7 +3,20 @@ from flask import Flask,json, request, render_template
 from dataclasses import dataclass
 from Algorithm.simplex import solveSimplex
 
-app = Flask(__name__)
+'''
+https://medium.com/swlh/how-to-deploy-a-react-python-flask-project-on-heroku-edb99309311
+
+The static_folder argument tells Flask where the static folder is. By default this will be located in the same directory where the application is
+The static_url_path argument tells Flask what is the URL prefix for all static files. The default is /static. By changing it to the root URL, we now don’t need to prepend every static file with /static
+'''
+app = Flask(__name__,static_folder='../build', static_url_path='/')
+
+#if __name__ == "__main__":
+#    app.run(host='0.0.0.0', debug=False, port=os.environ.get('PORT', 80))
+
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
 
 @app.route('/time')
 def get_current_time():

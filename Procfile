@@ -1,1 +1,1 @@
-web: ./backend/venv/Scripts/gunicorn ./backend/basicAPI:aqueous-eyrie-12209
+web: gunicorn basicAPI:aqueous-eyrie-12209

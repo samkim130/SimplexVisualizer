@@ -1,1 +1,1 @@
-web: gunicorn .backend.basicAPI:aqueous-eyrie-12209
+web: gunicorn backend.basicAPI:aqueous-eyrie-12209

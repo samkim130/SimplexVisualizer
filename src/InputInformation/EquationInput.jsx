@@ -132,7 +132,7 @@ export default class EquationInput extends Component {
       e.preventDefault();
       return;
     }
-    const newCoef=Number(e.target.value)
+    const newCoef = Number(e.target.value);
     const id = e.target.id;
     const first = id.indexOf("-", 0);
     const modelData = { ...this.state.modelData };
@@ -180,7 +180,7 @@ export default class EquationInput extends Component {
     console.log("changed constraint type:", e.target.id, e.target.value);
   };
   /************************************************/
-  async submitModel() {
+  async graphModel() {
     const { modelData, modelResult } = this.state;
     const augmentedModel = augmentModel(modelData);
     console.log(augmentedModel);
@@ -290,7 +290,11 @@ export default class EquationInput extends Component {
           <button onClick={() => this.removeConst()}>remove(-)</button>
           <br />
           <br />
-          <button onClick={() => this.submitModel()}>submit</button>
+          {false ? (
+            <button onClick={() => this.solveModel()}>Solve</button>
+          ) : (
+            <button onClick={() => this.graphModel()}>Graph</button>
+          )}
         </div>
         <div className="split right">
           {modelValid ? (

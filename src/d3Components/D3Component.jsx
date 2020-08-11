@@ -127,7 +127,7 @@ export default class D3Component extends Component {
     if (modelValid) {
       d3.select("#equations-imported").selectAll("polygon").remove();
       d3.select("#equations-imported").selectAll("path").remove();
-      d3.select("#equations-imported").selectAll("circe").remove();
+      d3.select("#equations-imported").selectAll("circle").remove();
       console.log("model passed");
       createGraphics(svg, modelData);
       createDots(svg, modelResult);

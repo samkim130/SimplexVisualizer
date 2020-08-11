@@ -317,11 +317,11 @@ const createDots = (svg, modelResult) => {
         .attr("cy", Y_SCALE(sol[1]))
         .transition()
         .attr("r", SOL_RADIUS*0.3)
-        .duration(100)
+        .duration(1000)
         .attr("fill", d3.color(d3.rgb(0, 0, 66, 0.75)))
         .transition()
         .attr("r", SOL_RADIUS)
-        .duration(100)
+        .duration(1000)
         .attr("fill",d3.color(d3.rgb(180, 218, 224, 1)));
     }, i * 500);
   }

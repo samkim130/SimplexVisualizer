@@ -5,7 +5,7 @@ import "./D3Component.css";
 /**
  * maybe add linear algebra calculation to calculate valid points
  */
-
+const PALLET = d3.schemeSet3;
 const WIDTH = 730;
 const HEIGHT = 520;
 const MARGIN = { top: 10, right: 10, bottom: 30, left: 40 };
@@ -19,6 +19,7 @@ const DEFAULT_LINE = d3
   .line()
   .x((d) => X_SCALE(d.x))
   .y((d) => Y_SCALE(d.y));
+const SOL_RADIUS=5;
 //const PRECISION = 100;
 
 export default class D3Component extends Component {
@@ -312,11 +313,16 @@ const createDots = (svg, modelResult) => {
         .select("#equations-imported")
         .append("circle")
         .attr("id", `solution-${i}`)
-        .attr("r", 5)
-        .attr("fill", "yellow")
-        //.attr("opacity", "0.2")
         .attr("cx", X_SCALE(sol[0]))
-        .attr("cy", Y_SCALE(sol[1]));
+        .attr("cy", Y_SCALE(sol[1]))
+        .transition()
+        .attr("r", SOL_RADIUS*0.3)
+        .duration(100)
+        .attr("fill", d3.color(d3.rgb(0, 0, 66, 0.75)))
+        .transition()
+        .attr("r", SOL_RADIUS)
+        .duration(100)
+        .attr("fill",d3.color(d3.rgb(180, 218, 224, 1)));
     }, i * 500);
   }
 };

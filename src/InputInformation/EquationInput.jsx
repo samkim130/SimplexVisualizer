@@ -256,26 +256,30 @@ export default class EquationInput extends Component {
     return (
       <div className="simplex">
         <div className="split left">
-          <select
-            name="optimization"
-            id="optType"
-            value={obj}
-            onChange={this.handleObjTypeChange.bind(this)}
-          >
-            <option value="maximize">Max</option>
-            <option value="minimize">Min</option>
-          </select>
-          {` :  `}
-          {objFunc(objCoef, numVar, this.handleNumberChange.bind(this))}
-          <br></br>Constraints :<br></br>
-          {constraints(
-            constCoef,
-            constType,
-            constRHS,
-            numVar,
-            this.handleNumberChange.bind(this),
-            this.handleConstTypeChange.bind(this)
-          )}
+          <div className="objective-function">
+            <select
+              name="optimization"
+              id="optType"
+              value={obj}
+              onChange={this.handleObjTypeChange.bind(this)}
+            >
+              <option value="maximize">Max</option>
+              <option value="minimize">Min</option>
+            </select>
+            {` :  `}
+            {objFunc(objCoef, numVar, this.handleNumberChange.bind(this))}
+          </div>
+          <div className="constraints">
+            Constraints :<br></br>
+            {constraints(
+              constCoef,
+              constType,
+              constRHS,
+              numVar,
+              this.handleNumberChange.bind(this),
+              this.handleConstTypeChange.bind(this)
+            )}
+          </div>
           <br></br>
           <label>Change Number of Variables: </label>
           <button onClick={() => this.addVar()}>add(+)</button>
@@ -350,7 +354,7 @@ const initConstType = (numConst) => {
  * @param {*} handleNumberChange
  */
 const objFunc = (objCoef, numVar, handleNumberChange) => {
-  return  objCoef.map((coeff, i) => {
+  return objCoef.map((coeff, i) => {
     const objOut = [];
     objOut.push(
       <input
@@ -390,7 +394,7 @@ const constraints = (
 ) => {
   return constCoef.map((constArray, j) => {
     return (
-      <div key ={`constraint-${j}`}>
+      <div key={`constraint-${j}`}>
         {constArray.map((coeff, i) => {
           const varOut = [];
           varOut.push(
@@ -415,15 +419,14 @@ const constraints = (
           return varOut;
         })}
         <select
-          key={`select-constraint-${j + 1}`}
           name={`ctype-${j + 1}`}
           id={`ctype-${j + 1}`}
           value={constType[j]}
           onChange={handleConstTypeChange}
         >
-          <option key="less" value="less">{`<=`}</option>
-          <option key="equal" value="equal">{`=`}</option>
-          <option key="great" value="great">{`>=`}</option>
+          <option value="less">{`<=`}</option>
+          <option value="equal">{`=`}</option>
+          <option value="great">{`>=`}</option>
         </select>{" "}
         <input
           key={`input-rhs-${j + 1}`}

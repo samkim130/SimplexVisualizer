@@ -11,8 +11,8 @@ The static_url_path argument tells Flask what is the URL prefix for all static f
 '''
 app = Flask(__name__,static_folder='../build', static_url_path='/')
 
-#if __name__ == "__main__":
-#    app.run(host='0.0.0.0', debug=False, port=os.environ.get('PORT', 80))
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', debug=False, port=os.environ.get('PORT', 80))
 
 @app.route('/')
 def index():

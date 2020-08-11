@@ -132,6 +132,7 @@ export default class EquationInput extends Component {
       e.preventDefault();
       return;
     }
+    const newCoef=Number(e.target.value)
     const id = e.target.id;
     const first = id.indexOf("-", 0);
     const modelData = { ...this.state.modelData };
@@ -140,7 +141,7 @@ export default class EquationInput extends Component {
       const { constRHS } = this.state.modelData;
       const index = parseInt(id.substring(first + 1));
 
-      constRHS[index - 1] = number(e.target.value);
+      constRHS[index - 1] = newCoef;
       modelData.constRHS = constRHS;
     } else if (id.includes("xc")) {
       const { constCoef } = this.state.modelData;
@@ -148,13 +149,13 @@ export default class EquationInput extends Component {
       const i_index = parseInt(id.substring(first + 1, second));
       const j_index = parseInt(id.substring(second + 1));
 
-      constCoef[j_index - 1][i_index - 1] = number(e.target.value);
+      constCoef[j_index - 1][i_index - 1] = newCoef;
       modelData.constCoef = constCoef;
     } else {
       const { objCoef } = this.state.modelData;
       const index = parseInt(id.substring(first + 1));
 
-      objCoef[index - 1] =number(e.target.value);
+      objCoef[index - 1] = newCoef;
       modelData.objCoef = objCoef;
     }
 
@@ -169,7 +170,7 @@ export default class EquationInput extends Component {
   handleConstTypeChange = (e) => {
     const { constType } = this.state.modelData;
     const index = parseInt(e.target.id.substring(6));
-    constType[index - 1] = number(e.target.value);
+    constType[index - 1] = Number(e.target.value);
     this.setState({
       modelData: {
         ...this.state.modelData,

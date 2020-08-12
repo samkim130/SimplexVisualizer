@@ -24,8 +24,9 @@ export default class EquationInput extends Component {
         constType: [],
         constRHS: [],
       },
-      simplexVisuals: null,
+      graphReady: false,
       modelValid: false,
+      simplexVisuals: null,
       modelResult: {
         problemSolved: false,
         augmentedModel: null,
@@ -178,7 +179,14 @@ export default class EquationInput extends Component {
     console.log("changed constraint type:", e.target.id, e.target.value);
   };
   /************************************************/
-  async graphModel() {
+  
+  graphModel(){
+    this.setState({
+      graphReady:true
+    });
+  }
+  
+  async solveModel() {
     const { modelData, modelResult } = this.state;
     const augmentedModel = augmentModel(modelData);
     console.log(augmentedModel);
@@ -250,7 +258,7 @@ export default class EquationInput extends Component {
   componentDidUpdate() {}
   /************************************************/
   render() {
-    const { modelData, modelValid, modelResult } = this.state;
+    const { modelData, modelValid, modelResult, graphReady } = this.state;
     const { numVar, obj, objCoef, constCoef, constType, constRHS } = modelData;
 
     return (
@@ -292,21 +300,33 @@ export default class EquationInput extends Component {
           <button onClick={() => this.removeConst()}>remove(-)</button>
           <br />
           <br />
-          {false ? (
+          {graphReady ?modelValid? "" :  (
             <button onClick={() => this.solveModel()}>Solve</button>
           ) : (
             <button onClick={() => this.graphModel()}>Graph</button>
           )}
         </div>
         <div className="split right">
-          {modelValid ? (
-            <D3Component
-              modelValid={modelValid}
-              modelData={modelData}
-              modelResult={modelResult}
-            ></D3Component>
+          {graphReady ? (
+            modelValid ? (
+              <D3Component
+                graphReady={graphReady}
+                modelValid={modelValid}
+                modelData={modelData}
+                modelResult={modelResult}
+              ></D3Component>
+            ) : (
+              <D3Component
+                graphReady={graphReady}
+                modelValid={modelValid}
+                modelData={modelData}
+              ></D3Component>
+            )
           ) : (
-            <D3Component modelValid={modelValid}></D3Component>
+            <D3Component
+              graphReady={graphReady}
+              modelValid={modelValid}
+            ></D3Component>
           )}
         </div>
       </div>

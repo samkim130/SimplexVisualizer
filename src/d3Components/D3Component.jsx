@@ -1,11 +1,11 @@
 import React, { Component } from "react";
 import * as d3 from "d3";
-import "./D3Component.css";
+//import "./D3Component.css";
 //import { set } from "d3";
 /**
  * maybe add linear algebra calculation to calculate valid points
  */
-const PALLET = d3.schemeSet3;
+const PALLET = ["#1f77b4","#ff7f0e","#2ca02c","#d62728","#9467bd","#8c564b","#e377c2","#7f7f7f","#bcbd22","#17becf"];
 const WIDTH = 730;
 const HEIGHT = 520;
 const MARGIN = { top: 10, right: 10, bottom: 30, left: 40 };
@@ -19,7 +19,7 @@ const DEFAULT_LINE = d3
   .line()
   .x((d) => X_SCALE(d.x))
   .y((d) => Y_SCALE(d.y));
-const SOL_RADIUS=5;
+const SOL_RADIUS = 5;
 //const PRECISION = 100;
 
 export default class D3Component extends Component {
@@ -253,11 +253,7 @@ const returnStringCoord = (points) => {
 const createGraphics = (svg, modelData) => {
   for (let i = 0; i < modelData.numConst; i++) {
     const gColor = d3.color(
-      d3.rgb(
-        100 + (i === 0 ? 100 : 0),
-        100 + (i === 1 ? 100 : 0),
-        100 + (i === 2 ? 100 : 0)
-      )
+      d3.rgb(PALLET[i])
     );
     const coordinates = coordEnclosed(
       returnFunc(
@@ -316,13 +312,44 @@ const createDots = (svg, modelResult) => {
         .attr("cx", X_SCALE(sol[0]))
         .attr("cy", Y_SCALE(sol[1]))
         .transition()
-        .attr("r", SOL_RADIUS*0.3)
-        .duration(1000)
+        .attr("r", SOL_RADIUS * 0.3)
+        .duration(400)
         .attr("fill", d3.color(d3.rgb(0, 0, 66, 0.75)))
         .transition()
+        .attr("r", SOL_RADIUS * 0.5)
+        .duration(400)
+        .attr("fill", d3.color(d3.rgb(17, 104, 217, 0.75)))
+        .transition()
+        .attr("r", SOL_RADIUS * 0.7)
+        .duration(400)
+        .attr("fill", d3.color(d3.rgb(0, 217, 159, 0.75)))
+        .transition()
+        .attr("r", SOL_RADIUS * 1.3)
+        .duration(400)
+        .attr("fill", d3.color(d3.rgb(0, 218, 224, 0.75)))
+        .transition()
         .attr("r", SOL_RADIUS)
-        .duration(1000)
-        .attr("fill",d3.color(d3.rgb(180, 218, 224, 1)));
+        .duration(400)
+        .attr("fill", d3.color(d3.rgb(255, 254, 106)))
+        .attr("stroke", "black")
+        .attr("stroke-width", 2);
+      if (i === modelResult.iteratedSol.length - 1) {
+        setTimeout(function () {
+          svg.select("#equations-imported").select(`#solution-${i}`).remove();
+          svg
+            .select("#equations-imported")
+            .append("path")
+            .attr("id", `solution-${i}`)
+            .attr(
+              "transform",
+              "translate(" + X_SCALE(sol[0]) + ", " + Y_SCALE(sol[1]) + ")"
+            )
+            .attr("fill", d3.color(d3.rgb(255, 254, 106)))
+            .attr("d", d3.symbol().size(200).type(d3.symbols[4]))
+            .attr("stroke", "black")
+            .attr("stroke-width", 2);
+        }, 2000);
+      }
     }, i * 500);
   }
 };

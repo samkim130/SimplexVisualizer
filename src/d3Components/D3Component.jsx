@@ -124,13 +124,18 @@ export default class D3Component extends Component {
 
   graphDraw() {
     const { svg } = this.state;
-    const { modelData, modelValid, modelResult } = this.props;
-    if (modelValid) {
+    const { modelData, modelValid, modelResult,graphReady } = this.props;
+    if(graphReady && !modelValid){
       d3.select("#equations-imported").selectAll("polygon").remove();
       d3.select("#equations-imported").selectAll("path").remove();
       d3.select("#equations-imported").selectAll("circle").remove();
-      console.log("model passed");
+      svg.select("#equations-imported").select("#solution-final").remove();
+      console.log("graphed");
       createGraphics(svg, modelData);
+    }else if (modelValid && graphReady) {
+      d3.select("#equations-imported").selectAll("circle").remove();
+      svg.select("#equations-imported").select("#solution-final").remove();
+      console.log("model passed");
       createDots(svg, modelResult);
     }
   }
@@ -339,7 +344,7 @@ const createDots = (svg, modelResult) => {
           svg
             .select("#equations-imported")
             .append("path")
-            .attr("id", `solution-${i}`)
+            .attr("id", `solution-final`)
             .attr(
               "transform",
               "translate(" + X_SCALE(sol[0]) + ", " + Y_SCALE(sol[1]) + ")"

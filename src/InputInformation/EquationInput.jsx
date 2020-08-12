@@ -179,13 +179,13 @@ export default class EquationInput extends Component {
     console.log("changed constraint type:", e.target.id, e.target.value);
   };
   /************************************************/
-  
-  graphModel(){
+
+  graphModel() {
     this.setState({
-      graphReady:true
+      graphReady: true,
     });
   }
-  
+
   async solveModel() {
     const { modelData, modelResult } = this.state;
     const augmentedModel = augmentModel(modelData);
@@ -300,8 +300,12 @@ export default class EquationInput extends Component {
           <button onClick={() => this.removeConst()}>remove(-)</button>
           <br />
           <br />
-          {graphReady ?modelValid? "" :  (
-            <button onClick={() => this.solveModel()}>Solve</button>
+          {graphReady ? (
+            modelValid ? (
+              ""
+            ) : (
+              <button onClick={() => this.solveModel()}>Solve</button>
+            )
           ) : (
             <button onClick={() => this.graphModel()}>Graph</button>
           )}

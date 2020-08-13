@@ -49,6 +49,7 @@ export default class EquationInput extends Component {
         ...this.state.modelData,
         numVar: numVar + 1,
         modelValid: false,
+        graphReady: false,
       },
     });
   }
@@ -65,6 +66,7 @@ export default class EquationInput extends Component {
         ...this.state.modelData,
         numVar: numVar - 1,
         modelValid: false,
+        graphReady: false,
       },
     });
   }
@@ -88,6 +90,7 @@ export default class EquationInput extends Component {
         ...this.state.modelData,
         numConst: numConst + 1,
         modelValid: false,
+        graphReady: false,
       },
     });
   }
@@ -105,6 +108,7 @@ export default class EquationInput extends Component {
         ...this.state.modelData,
         numConst: numConst - 1,
         modelValid: false,
+        graphReady: false,
       },
     });
   }
@@ -117,6 +121,7 @@ export default class EquationInput extends Component {
         obj: e.target.value,
       },
       modelValid: false,
+      graphReady: false,
     });
   };
 
@@ -161,6 +166,7 @@ export default class EquationInput extends Component {
     this.setState({
       modelData: modelData,
       modelValid: false,
+      graphReady: false,
     });
 
     console.log("changed number: ", id, e.target.value);
@@ -175,6 +181,7 @@ export default class EquationInput extends Component {
         ...this.state.modelData,
       },
       modelValid: false,
+      graphReady: false,
     });
     console.log("changed constraint type:", e.target.id, e.target.value);
   };

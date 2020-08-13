@@ -24,7 +24,7 @@ def get_current_time():
     return {'time': time.time()}
 
 @app.route("/solution", methods=['GET', 'POST'])
-def get_data():
+def send_sol():
     if request.method == 'POST':                                  
         data = json.loads(request.data)
         ss = "received the model data" 
@@ -42,7 +42,7 @@ def get_data():
     return "error: this is only a POST method"
 
 @app.route("/graph", methods=['GET', 'POST'])
-def get_data():
+def send_intersections():
     if request.method == 'POST':                                  
         data = json.loads(request.data)
         ss = "received the model data" 

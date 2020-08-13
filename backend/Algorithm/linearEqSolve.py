@@ -6,8 +6,8 @@ def findIntersections(model,logger):
     #load problem set
     A= np.array(model['constCoef'])
     b= np.array([model['constRHS']])
-    numConst = modelData["numConst"]
-    numVar = modelData["numVar"]
+    numConst = model["numConst"]
+    numVar = model["numVar"]
 
     return returnIntersections(A,b,numConst,numVar)
 

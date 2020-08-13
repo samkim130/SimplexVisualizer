@@ -180,10 +180,32 @@ export default class EquationInput extends Component {
   };
   /************************************************/
 
-  graphModel() {
-    this.setState({
-      graphReady: true,
+  async graphModel() {
+    const { modelData } = this.state;
+
+    let response = await fetch("/graph", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        modelData: modelData,
+      }),
     });
+    if (response.ok) {
+      let json = await response.json();
+
+      console.log("msg:", json.msg);
+      console.log(json.summary);
+      console.log(json.intersections);
+
+      this.setState({
+        graphReady: true,
+      });
+    } else {
+      console.log("HTTP-Error: " + response.status);
+      this.setState({ graphReady: false });
+    }
   }
 
   async solveModel() {
@@ -192,13 +214,12 @@ export default class EquationInput extends Component {
     console.log(augmentedModel);
     console.log(modelData);
 
-    let response = await fetch("/dataReceive", {
+    let response = await fetch("/solution", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        modelData: modelData,
         augmentedModel: augmentedModel,
       }),
     });
@@ -207,10 +228,9 @@ export default class EquationInput extends Component {
 
       console.log("msg:", json.msg);
       console.log(json.summary);
-      console.log(json.augmented_form);
-      console.log(json.testimport);
+      console.log(json.solution);
 
-      const { problemSolved, iteratedSol } = json.testimport;
+      const { problemSolved, iteratedSol } = json.solution;
       modelResult.problemSolved = problemSolved;
       modelResult.augmentedModel = augmentedModel;
       modelResult.iteratedSol = iteratedSol;

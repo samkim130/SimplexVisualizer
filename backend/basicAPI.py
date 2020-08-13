@@ -2,6 +2,7 @@ import time
 from flask import Flask,json, request, render_template
 from dataclasses import dataclass
 from .Algorithm.simplex import solveSimplex
+from .Algorithm.linearEqSolve import findIntersections
 
 '''
 https://medium.com/swlh/how-to-deploy-a-react-python-flask-project-on-heroku-edb99309311
@@ -22,7 +23,7 @@ def index():
 def get_current_time():
     return {'time': time.time()}
 
-@app.route("/dataReceive", methods=['GET', 'POST'])
+@app.route("/solution", methods=['GET', 'POST'])
 def get_data():
     if request.method == 'POST':                                  
         data = json.loads(request.data)
@@ -34,15 +35,34 @@ def get_data():
 
         response ={
             'msg': ss,
-            'summary': ("This is what backend received:\n\n"+printSimplex(data['modelData'])),
             'augmented_form': ("This is the augmented form :\n\n"+printSimplex(data['augmentedModel'])),
-            'testimport':solution
+            'solution':solution
         }
         return json.dumps(response)
     return "error: this is only a POST method"
 
-if __name__ == '__main__':
-    app.run(debug=True)
+@app.route("/graph", methods=['GET', 'POST'])
+def get_data():
+    if request.method == 'POST':                                  
+        data = json.loads(request.data)
+        ss = "received the model data" 
+        #app.logger.info("show model data: ",json.dumps(data))
+
+        intersections= findIntersections(data['modelData'],app.logger);
+        #solution = "ha"
+
+        response ={
+            'msg': ss,
+            'summary': ("This is what backend received:\n\n"+printSimplex(data['modelData'])),
+            'intersections':intersections
+        }
+        return json.dumps(response)
+    return "error: this is only a POST method"
+
+
+
+#if __name__ == '__main__':
+#    app.run(debug=True)
     
 def printSimplex(modelData):
     text= (modelData['obj'] + " : ")

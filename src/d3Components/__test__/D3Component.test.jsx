@@ -11,9 +11,14 @@ import {
 import "@testing-library/jest-dom/extend-expect";
 import TestRenderer from "react-test-renderer";
 
+const graphInfo={
+  graphReady:false,
+  intersections:[],
+};
+
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(<D3Component modelValid={false}></D3Component>, div);
+  ReactDOM.render(<D3Component modelValid={false} graphInfo={graphInfo}></D3Component>, div);
 });
 
 it("matches snapshot", () => {
@@ -57,6 +62,10 @@ it("matches snapshot", () => {
     .create(
       <D3Component
         modelValid={true}
+        graphInfo={{
+          graphReady:true,
+          intersections:[],
+        }}
         modelData={modelData}
         modelResult={modelResult}
       ></D3Component>

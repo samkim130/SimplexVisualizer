@@ -124,15 +124,15 @@ export default class D3Component extends Component {
 
   graphDraw() {
     const { svg } = this.state;
-    const { modelData, modelValid, modelResult,graphReady } = this.props;
-    if(graphReady && !modelValid){
+    const { modelData, modelValid, modelResult,graphInfo } = this.props;
+    if(graphInfo.graphReady && !modelValid){
       d3.select("#equations-imported").selectAll("polygon").remove();
       d3.select("#equations-imported").selectAll("path").remove();
       d3.select("#equations-imported").selectAll("circle").remove();
       svg.select("#equations-imported").select("#solution-final").remove();
       console.log("graphed");
       createGraphics(svg, modelData);
-    }else if (modelValid && graphReady) {
+    }else if (modelValid && graphInfo.graphReady) {
       d3.select("#equations-imported").selectAll("circle").remove();
       svg.select("#equations-imported").select("#solution-final").remove();
       console.log("model passed");

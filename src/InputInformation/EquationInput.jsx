@@ -24,9 +24,11 @@ export default class EquationInput extends Component {
         constType: [],
         constRHS: [],
       },
-      graphReady: false,
+      graphInfo: {
+        graphReady: false,
+        intersections: [],
+      },
       modelValid: false,
-      simplexVisuals: null,
       modelResult: {
         problemSolved: false,
         augmentedModel: null,
@@ -49,7 +51,10 @@ export default class EquationInput extends Component {
         ...this.state.modelData,
         numVar: numVar + 1,
         modelValid: false,
-        graphReady: false,
+        graphInfo: {
+          graphReady: false,
+          intersections:[],
+        },
       },
     });
   }
@@ -66,7 +71,10 @@ export default class EquationInput extends Component {
         ...this.state.modelData,
         numVar: numVar - 1,
         modelValid: false,
-        graphReady: false,
+        graphInfo: {
+          graphReady: false,
+          intersections:[],
+        },
       },
     });
   }
@@ -90,7 +98,10 @@ export default class EquationInput extends Component {
         ...this.state.modelData,
         numConst: numConst + 1,
         modelValid: false,
-        graphReady: false,
+        graphInfo: {
+          graphReady: false,
+          intersections:[],
+        },
       },
     });
   }
@@ -108,7 +119,10 @@ export default class EquationInput extends Component {
         ...this.state.modelData,
         numConst: numConst - 1,
         modelValid: false,
-        graphReady: false,
+        graphInfo: {
+          graphReady: false,
+          intersections:[],
+        },
       },
     });
   }
@@ -121,7 +135,10 @@ export default class EquationInput extends Component {
         obj: e.target.value,
       },
       modelValid: false,
-      graphReady: false,
+      graphInfo: {
+        ...graphInfo,
+        graphReady: false,
+      },
     });
   };
 
@@ -166,7 +183,10 @@ export default class EquationInput extends Component {
     this.setState({
       modelData: modelData,
       modelValid: false,
-      graphReady: false,
+      graphInfo: {
+        graphReady: false,
+        intersections:[],
+      },
     });
 
     console.log("changed number: ", id, e.target.value);
@@ -181,7 +201,10 @@ export default class EquationInput extends Component {
         ...this.state.modelData,
       },
       modelValid: false,
-      graphReady: false,
+      graphInfo: {
+        graphReady: false,
+        intersections:[],
+      },
     });
     console.log("changed constraint type:", e.target.id, e.target.value);
   };
@@ -207,11 +230,19 @@ export default class EquationInput extends Component {
       console.log(json.intersections);
 
       this.setState({
-        graphReady: true,
+        graphInfo: {
+          graphReady: true,
+          intersections: json.intersections,
+        },
       });
     } else {
       console.log("HTTP-Error: " + response.status);
-      this.setState({ graphReady: false });
+      this.setState({
+        graphInfo: {
+          graphReady: false,
+          intersections:[],
+        },
+      });
     }
   }
 
@@ -285,7 +316,7 @@ export default class EquationInput extends Component {
   componentDidUpdate() {}
   /************************************************/
   render() {
-    const { modelData, modelValid, modelResult, graphReady } = this.state;
+    const { modelData, modelValid, modelResult, graphInfo } = this.state;
     const { numVar, obj, objCoef, constCoef, constType, constRHS } = modelData;
 
     return (
@@ -317,45 +348,57 @@ export default class EquationInput extends Component {
           </div>
           <br></br>
           <label>Change Number of Variables: </label>
-          <button class="btn btn-primary" onClick={() => this.addVar()}>add(+)</button>
+          <button className="btn btn-primary" onClick={() => this.addVar()}>
+            add(+)
+          </button>
           {` `}
-          <button class="btn btn-primary" onClick={() => this.removeVar()}>remove(-)</button>
+          <button className="btn btn-primary" onClick={() => this.removeVar()}>
+            remove(-)
+          </button>
           <br></br>
           <label>Change Number of Constraints: </label>
-          <button class="btn btn-primary" onClick={() => this.addConst()}>add(+)</button>
+          <button className="btn btn-primary" onClick={() => this.addConst()}>
+            add(+)
+          </button>
           {` `}
-          <button class="btn btn-primary" onClick={() => this.removeConst()}>remove(-)</button>
+          <button className="btn btn-primary" onClick={() => this.removeConst()}>
+            remove(-)
+          </button>
           <br />
           <br />
-          {graphReady ? (
+          {graphInfo.graphReady ? (
             modelValid ? (
               ""
             ) : (
-              <button class="btn btn-primary" onClick={() => this.solveModel()}>Solve</button>
+              <button className="btn btn-primary" onClick={() => this.solveModel()}>
+                Solve
+              </button>
             )
           ) : (
-            <button class="btn btn-primary" onClick={() => this.graphModel()}>Graph</button>
+            <button className="btn btn-primary" onClick={() => this.graphModel()}>
+              Graph
+            </button>
           )}
         </div>
         <div className="split right">
-          {graphReady ? (
+          {graphInfo.graphReady ? (
             modelValid ? (
               <D3Component
-                graphReady={graphReady}
+                graphInfo={graphInfo}
                 modelValid={modelValid}
                 modelData={modelData}
                 modelResult={modelResult}
               ></D3Component>
             ) : (
               <D3Component
-                graphReady={graphReady}
+                graphInfo={graphInfo}
                 modelValid={modelValid}
                 modelData={modelData}
               ></D3Component>
             )
           ) : (
             <D3Component
-              graphReady={graphReady}
+              graphInfo={graphInfo}
               modelValid={modelValid}
             ></D3Component>
           )}

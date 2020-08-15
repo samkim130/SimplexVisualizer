@@ -136,8 +136,8 @@ export default class EquationInput extends Component {
       },
       modelValid: false,
       graphInfo: {
-        ...graphInfo,
         graphReady: false,
+        intersections:[],
       },
     });
   };

@@ -310,41 +310,25 @@ const createDots = (svg, modelResult) => {
   for (let i = 0; i < modelResult.iteratedSol.length; i++) {
     setTimeout(function () {
       const sol = modelResult.iteratedSol[i];
-      svg
+      const Z = solveObj(modelResult.augmentedModel.objCoef, sol).toFixed(2);
+
+      const iteration = svg
         .select("#equations-imported")
         .append("circle")
         .attr("id", `solution-${i}`)
         .attr("cx", X_SCALE(sol[0]))
-        .attr("cy", Y_SCALE(sol[1]))
-        .transition()
-        .attr("r", SOL_RADIUS * 0.3)
-        .duration(400)
-        .attr("fill", d3.color(d3.rgb(0, 0, 66, 0.75)))
-        .transition()
-        .attr("r", SOL_RADIUS * 0.5)
-        .duration(400)
-        .attr("fill", d3.color(d3.rgb(17, 104, 217, 0.75)))
-        .transition()
-        .attr("r", SOL_RADIUS * 0.7)
-        .duration(400)
-        .attr("fill", d3.color(d3.rgb(0, 217, 159, 0.75)))
-        .transition()
-        .attr("r", SOL_RADIUS * 1.3)
-        .duration(400)
-        .attr("fill", d3.color(d3.rgb(0, 218, 224, 0.75)))
-        .transition()
-        .attr("r", SOL_RADIUS)
-        .duration(400)
-        .attr("fill", d3.color(d3.rgb(255, 254, 106)))
-        .attr("stroke", "black")
-        .attr("stroke-width", 2);
+        .attr("cy", Y_SCALE(sol[1]));
+
+      addMouseEvents(iteration, svg, sol, i, Z);
+      addTransitions(iteration);
+
       if (i === modelResult.iteratedSol.length - 1) {
         setTimeout(function () {
           svg.select("#equations-imported").select(`#solution-${i}`).remove();
-          svg
+          const solution = svg
             .select("#equations-imported")
             .append("path")
-            .attr("id", `solution-final`)
+            .attr("id", `solution-${i}`)
             .attr(
               "transform",
               "translate(" + X_SCALE(sol[0]) + ", " + Y_SCALE(sol[1]) + ")"
@@ -353,8 +337,87 @@ const createDots = (svg, modelResult) => {
             .attr("d", d3.symbol().size(200).type(d3.symbols[4]))
             .attr("stroke", "black")
             .attr("stroke-width", 2);
+          addMouseEventsStar(solution,svg, sol, i, Z);
         }, 2000);
       }
     }, i * 500);
   }
+};
+
+const solveObj = (coeff, sol) => {
+  var Z = 0;
+  for (let i = 0; i < 2; i++) Z += sol[i] * coeff[i];
+  return Z;
+};
+
+const addMouseEvents = (this_svg, grid_svg, sol, i, Z) => {
+  this_svg.on("mouseover", function () {
+    var this_x = Number(d3.select(this).attr("cx")).toFixed(2);
+    var this_y = Number(d3.select(this).attr("cy")).toFixed(2);
+    var txt = "( " + sol[0].toFixed(2) + ", " + sol[1].toFixed(2) + " )\n" + Z;
+
+    d3.select(this).attr("r", SOL_RADIUS * 2);
+
+    grid_svg
+      .select("#equations-imported")
+      .append("text")
+      .attr("id", `txt-${i}`)
+      .attr("x", this_x + 20)
+      .attr("y", this_y - 15)
+      .text(txt);
+  });
+  this_svg.on("mouseout", function () {
+    d3.select(this).attr("r", SOL_RADIUS);
+
+    grid_svg.select("#equations-imported").select(`#txt-${i}`).remove();
+  });
+};
+
+const addTransitions = (this_svg) => {
+  this_svg
+    .transition()
+    .attr("r", SOL_RADIUS * 0.3)
+    .duration(400)
+    .attr("fill", d3.color(d3.rgb(0, 0, 66, 0.75)))
+    .transition()
+    .attr("r", SOL_RADIUS * 0.5)
+    .duration(400)
+    .attr("fill", d3.color(d3.rgb(17, 104, 217, 0.75)))
+    .transition()
+    .attr("r", SOL_RADIUS * 0.7)
+    .duration(400)
+    .attr("fill", d3.color(d3.rgb(0, 217, 159, 0.75)))
+    .transition()
+    .attr("r", SOL_RADIUS * 1.3)
+    .duration(400)
+    .attr("fill", d3.color(d3.rgb(0, 218, 224, 0.75)))
+    .transition()
+    .attr("r", SOL_RADIUS)
+    .duration(400)
+    .attr("fill", d3.color(d3.rgb(255, 254, 106)))
+    .attr("stroke", "black")
+    .attr("stroke-width", 2);
+};
+
+const addMouseEventsStar = (this_svg, grid_svg, sol, i, Z) => {
+  this_svg.on("mouseover", function () {
+    var this_x =  X_SCALE(sol[0]).toFixed(2);
+    var this_y =  Y_SCALE(sol[1]).toFixed(2);
+    var txt = "( " + sol[0].toFixed(2) + ", " + sol[1].toFixed(2) + " )\n" + Z;
+
+    d3.select(this).attr("d", d3.symbol().size(350).type(d3.symbols[4]));
+
+    grid_svg
+      .select("#equations-imported")
+      .append("text")
+      .attr("id", `txt-${i}`)
+      .attr("x", this_x + 20)
+      .attr("y", this_y - 15)
+      .text(txt);
+  });
+  this_svg.on("mouseout", function () {
+    d3.select(this).attr("d", d3.symbol().size(200).type(d3.symbols[4]));
+
+    grid_svg.select("#equations-imported").select(`#txt-${i}`).remove();
+  });
 };

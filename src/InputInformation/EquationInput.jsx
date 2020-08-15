@@ -50,11 +50,11 @@ export default class EquationInput extends Component {
       modelData: {
         ...this.state.modelData,
         numVar: numVar + 1,
-        modelValid: false,
-        graphInfo: {
-          graphReady: false,
-          intersections:[],
-        },
+      },
+      modelValid: false,
+      graphInfo: {
+        graphReady: false,
+        intersections:[],
       },
     });
   }
@@ -70,11 +70,11 @@ export default class EquationInput extends Component {
       modelData: {
         ...this.state.modelData,
         numVar: numVar - 1,
-        modelValid: false,
-        graphInfo: {
-          graphReady: false,
-          intersections:[],
-        },
+      },
+      modelValid: false,
+      graphInfo: {
+        graphReady: false,
+        intersections:[],
       },
     });
   }
@@ -97,11 +97,11 @@ export default class EquationInput extends Component {
       modelData: {
         ...this.state.modelData,
         numConst: numConst + 1,
-        modelValid: false,
-        graphInfo: {
-          graphReady: false,
-          intersections:[],
-        },
+      },
+      modelValid: false,
+      graphInfo: {
+        graphReady: false,
+        intersections:[],
       },
     });
   }
@@ -118,11 +118,11 @@ export default class EquationInput extends Component {
       modelData: {
         ...this.state.modelData,
         numConst: numConst - 1,
-        modelValid: false,
-        graphInfo: {
-          graphReady: false,
-          intersections:[],
-        },
+      },
+      modelValid: false,
+      graphInfo: {
+        graphReady: false,
+        intersections:[],
       },
     });
   }

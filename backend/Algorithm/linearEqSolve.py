@@ -32,9 +32,9 @@ def gaussJordan(matrix):
         mat[switch]=temp
     for i in range(mat.shape[1]-1):
         mat[i]=mat[i]/mat[i,i]
-    for j in range(mat.shape[1]-1):
-        if(i!=j):
-            mat[j]=mat[j]-mat[i]*mat[j,i]
+        for j in range(mat.shape[1]-1):
+            if(i!=j):
+                mat[j]=mat[j]-mat[i]*mat[j,i]
     coeff=mat[:,0:(mat.shape[1]-1)]
     RHS=mat[:,[mat.shape[1]-1]]
 

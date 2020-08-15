@@ -317,24 +317,24 @@ export default class EquationInput extends Component {
           </div>
           <br></br>
           <label>Change Number of Variables: </label>
-          <button onClick={() => this.addVar()}>add(+)</button>
+          <button class="btn btn-primary" onClick={() => this.addVar()}>add(+)</button>
           {` `}
-          <button onClick={() => this.removeVar()}>remove(-)</button>
+          <button class="btn btn-primary" onClick={() => this.removeVar()}>remove(-)</button>
           <br></br>
           <label>Change Number of Constraints: </label>
-          <button onClick={() => this.addConst()}>add(+)</button>
+          <button class="btn btn-primary" onClick={() => this.addConst()}>add(+)</button>
           {` `}
-          <button onClick={() => this.removeConst()}>remove(-)</button>
+          <button class="btn btn-primary" onClick={() => this.removeConst()}>remove(-)</button>
           <br />
           <br />
           {graphReady ? (
             modelValid ? (
               ""
             ) : (
-              <button onClick={() => this.solveModel()}>Solve</button>
+              <button class="btn btn-primary" onClick={() => this.solveModel()}>Solve</button>
             )
           ) : (
-            <button onClick={() => this.graphModel()}>Graph</button>
+            <button class="btn btn-primary" onClick={() => this.graphModel()}>Graph</button>
           )}
         </div>
         <div className="split right">

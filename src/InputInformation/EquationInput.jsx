@@ -42,8 +42,8 @@ export default class EquationInput extends Component {
       console.log("max number of variables reached!");
       return;
     }
-    objCoef.push("");
-    constCoef.forEach((row) => row.push(""));
+    objCoef.push(0);
+    constCoef.forEach((row) => row.push(0));
     this.setState({
       modelData: {
         ...this.state.modelData,
@@ -84,7 +84,7 @@ export default class EquationInput extends Component {
     }
     constCoef.push(initObjFunc(numVar));
     constType.push("less");
-    constRHS.push("");
+    constRHS.push(0);
     this.setState({
       modelData: {
         ...this.state.modelData,

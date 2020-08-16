@@ -143,7 +143,7 @@ export default class D3Component extends Component {
     if (graphInfo.graphReady) {
       console.log("graphed");
       this.createGraphics();
-      const solExists = this.checkSolutionExists();
+      const solExists = graphInfo.solutionExists? this.checkSolutionExists():false;
       if (modelValid && solExists) {
         console.log("model passed");
         this.createDots();
@@ -302,16 +302,17 @@ export default class D3Component extends Component {
       .attr("height", HEIGHT)
       .append("g")
       .attr("transform", "translate(" + MARGIN.left + "," + MARGIN.top + ")");
-
+    const settings = {
+      x_dom: X_DOMAIN,
+      y_dom: Y_DOMAIN,
+      x_scale: X_SCALE,
+      y_scale: Y_SCALE,
+      line: DEFAULT_LINE,
+    };
+    console.log("mounted graphs first", settings);
     this.setState({
       svg: svg,
-      settings: {
-        x_dom: X_DOMAIN,
-        y_dom: Y_DOMAIN,
-        x_scale: X_SCALE,
-        y_scale: Y_SCALE,
-        line: DEFAULT_LINE,
-      },
+      settings: settings,
     });
 
     //const walkingValues = genCurvedGraphData(X_DOMAIN, this.props.yfunc, PRECISION);

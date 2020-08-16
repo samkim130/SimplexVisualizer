@@ -48,8 +48,7 @@ def solveSimplex(model,logger):
             B=newB(B,B_index_leave,A,B_index,new_index_C)
 
         if(count>100):
-            {'problemSolved':False,'iteratedSol': solTracker}
-            break
+            return {'problemSolved':False,'iteratedSol': solTracker}
         count+=1
 
     return {'problemSolved':True,'iteratedSol': solTracker}

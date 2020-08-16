@@ -330,29 +330,41 @@ export default class D3Component extends Component {
   }
 
   componentDidUpdate(previousProps) {
-    const{graphInfo,modelData} = this.props;
-    if(graphInfo.graphReady && (previousProps.graphInfo !== this.props.graphInfo)){
+    const { graphInfo, modelData } = this.props;
+    if (
+      graphInfo.graphReady &&
+      previousProps.graphInfo !== this.props.graphInfo
+    ) {
       console.log("diff props");
-      const domains = fetchDomains(graphInfo.intersections,modelData);
-      const x_scale=d3.scaleLinear().domain(domains.x).range([0, INNER_WIDTH]);
-      const y_scale=d3.scaleLinear().domain(domains.y).range([INNER_HEIGHT, 0]);
-      const settings= {
+      const domains = fetchDomains(graphInfo.intersections, modelData);
+      const x_scale = d3
+        .scaleLinear()
+        .domain(domains.x)
+        .range([0, INNER_WIDTH]);
+      const y_scale = d3
+        .scaleLinear()
+        .domain(domains.y)
+        .range([INNER_HEIGHT, 0]);
+      const settings = {
         x_dom: domains.x,
         y_dom: domains.y,
         x_scale: x_scale,
-        y_scale:y_scale,
+        y_scale: y_scale,
         line: d3
-        .line()
-        .x((d) => x_scale(d.x))
-        .y((d) => y_scale(d.y)),
+          .line()
+          .x((d) => x_scale(d.x))
+          .y((d) => y_scale(d.y)),
       };
-      this.setState({
-        settings:settings,
-      },function(){        
-        this.graphSetUp();
-        this.graphDraw();
-      });
-    } else if (previousProps.modelResult !== this.props.modelResult){
+      this.setState(
+        {
+          settings: settings,
+        },
+        function () {
+          this.graphSetUp();
+          this.graphDraw();
+        }
+      );
+    } else if (previousProps.modelResult !== this.props.modelResult) {
       this.graphDraw();
     }
     //const walkingValueSnapShot = this.state.walkingValues;
@@ -378,40 +390,40 @@ const genCurvedGraphData = (xDomain, yfunc, precision) => {
   return data;
 };
 
-const fetchDomains = (intersections,modelData)=>{
+const fetchDomains = (intersections, modelData) => {
   const domains = {
-    x:[0,0],
-    y:[0,0]
-  }
-  for(const pt of intersections){
-    if(pt){
-      if(pt[0]<domains.x[0]) domains.x[0]=pt[0];
-      if(pt[0]>domains.x[1]) domains.x[1]=pt[0];
-      if(pt[1]<domains.y[0]) domains.y[0]=pt[1];
-      if(pt[1]>domains.y[1]) domains.y[1]=pt[1];
-    }
-  }
-  
-  const { numVar,numConst, constCoef, constRHS } = modelData;
-  for (let i = 0; i < numConst; i++) {
-    const y_func = returnFunc(1, numVar, constCoef[i], constRHS[i]);
-    const x_func = returnFunc(0, numVar, constCoef[i], constRHS[i]);
-    const x_intercept=y_func(0);
-    const y_intercept=x_func(0);
-    if(x_intercept){
-      if(x_intercept<domains.x[0]) domains.x[0]=x_intercept;
-      if(x_intercept>domains.x[1]) domains.x[1]=x_intercept;
-    }
-    if(y_intercept){
-      if(y_intercept<domains.y[0]) domains.y[0]=y_intercept;
-      if(y_intercept>domains.y[1]) domains.y[1]=y_intercept;
+    x: [0, 0],
+    y: [0, 0],
+  };
+  for (const pt of intersections) {
+    if (pt) {
+      if (pt[0] < domains.x[0]) domains.x[0] = pt[0];
+      if (pt[0] > domains.x[1]) domains.x[1] = pt[0];
+      if (pt[1] < domains.y[0]) domains.y[0] = pt[1];
+      if (pt[1] > domains.y[1]) domains.y[1] = pt[1];
     }
   }
 
-  const xRng= domains.x[1]-domains.x[0];
-  const yRng= domains.y[1]-domains.y[0];
-  domains.x=[domains.x[0]-xRng*.3, domains.x[1] +xRng*.3];
-  domains.y=[domains.y[0]-yRng*.3, domains.y[1] +yRng*.3];
+  const { numVar, numConst, constCoef, constRHS } = modelData;
+  for (let i = 0; i < numConst; i++) {
+    const y_func = returnFunc(1, numVar, constCoef[i], constRHS[i]);
+    const x_func = returnFunc(0, numVar, constCoef[i], constRHS[i]);
+    const x_intercept = y_func(0);
+    const y_intercept = x_func(0);
+    if (x_intercept) {
+      if (x_intercept < domains.x[0]) domains.x[0] = x_intercept;
+      if (x_intercept > domains.x[1]) domains.x[1] = x_intercept;
+    }
+    if (y_intercept) {
+      if (y_intercept < domains.y[0]) domains.y[0] = y_intercept;
+      if (y_intercept > domains.y[1]) domains.y[1] = y_intercept;
+    }
+  }
+
+  const xRng = domains.x[1] - domains.x[0];
+  const yRng = domains.y[1] - domains.y[0];
+  domains.x = [domains.x[0] - xRng * 0.3, domains.x[1] + xRng * 0.3];
+  domains.y = [domains.y[0] - yRng * 0.3, domains.y[1] + yRng * 0.3];
 
   return domains;
 };
@@ -541,7 +553,8 @@ const addMouseEvents = (this_svg, grid_svg, sol, i, Z) => {
   this_svg.on("mouseover", function () {
     const this_x = Number(d3.select(this).attr("cx")).toFixed(2);
     const this_y = Number(d3.select(this).attr("cy")).toFixed(2);
-    const txt = "( " + sol[0].toFixed(2) + ", " + sol[1].toFixed(2) + " )\n" + Z;
+    const txt =
+      "( " + sol[0].toFixed(2) + ", " + sol[1].toFixed(2) + " )\n" + Z;
 
     d3.select(this).attr("r", SOL_RADIUS * 2);
 
@@ -588,10 +601,16 @@ const addTransitions = (this_svg) => {
 
 const addMouseEventsStar = (this_svg, grid_svg, sol, i, Z) => {
   this_svg.on("mouseover", function () {
-    const pos=d3.select(this).attr("transform");
-    const this_x = Number(pos.substring(pos.indexOf("(")+1, pos.indexof(","))).toFixed(2);
-    const this_y = Number(pos.substring(pos.indexOf(",")+1, pos.indexof(")"))).toFixed(2);
-    const txt = "( " + sol[0].toFixed(2) + ", " + sol[1].toFixed(2) + " )\n" + Z;
+    const pos = d3.select(this).attr("transform");
+    const this_x = Number(
+      pos.substring(pos.indexOf("(") + 1, pos.indexof(","))
+    ).toFixed(2);
+    const this_y = Number(
+      pos.substring(pos.indexOf(",") + 1, pos.indexof(")"))
+    ).toFixed(2);
+    console.log(pos, this_x, this_y);
+    const txt =
+      "( " + sol[0].toFixed(2) + ", " + sol[1].toFixed(2) + " )\n" + Z;
 
     d3.select(this).attr(
       "d",

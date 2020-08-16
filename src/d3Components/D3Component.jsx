@@ -348,6 +348,8 @@ export default class D3Component extends Component {
         this.graphSetUp();
         this.graphDraw();
       });
+    } else if (previousProps.modelResult !== this.props.modelResult){
+      this.graphDraw();
     }
     //const walkingValueSnapShot = this.state.walkingValues;
     //console.log("walkingValuesSnapShot: ", walkingValueSnapShot);

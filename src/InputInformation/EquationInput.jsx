@@ -382,15 +382,6 @@ export default class EquationInput extends Component {
             )}
           </div>
           <br></br>
-          <label>Change Number of Variables: </label>
-          <button className="btn btn-primary" onClick={() => this.addVar()}>
-            add(+)
-          </button>
-          {` `}
-          <button className="btn btn-primary" onClick={() => this.removeVar()}>
-            remove(-)
-          </button>
-          <br></br>
           <label>Change Number of Constraints: </label>
           <button className="btn btn-primary" onClick={() => this.addConst()}>
             add(+)

@@ -139,9 +139,13 @@ export default class D3Component extends Component {
 
   /***************************************************************************************************/
   graphDraw() {
+    const { svg } = this.state;
     const { modelValid, graphInfo } = this.props;
     if (graphInfo.graphReady) {
       console.log("graphed");
+      svg.select("#equations-imported").selectAll("polygon").remove();
+      svg.select("#equations-imported").selectAll("path").remove();
+      svg.select("#equations-imported").selectAll("circle").remove();
       this.createGraphics();
       const solExists = graphInfo.solutionExists
         ? this.checkSolutionExists()

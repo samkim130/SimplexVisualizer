@@ -137,16 +137,53 @@ export default class D3Component extends Component {
     svg.append("g").attr("id", "equations-imported");
   }
 
+  /***************************************************************************************************/
   graphDraw() {
     const { modelValid, graphInfo } = this.props;
     if (graphInfo.graphReady) {
       console.log("graphed");
       this.createGraphics();
-      if (modelValid) {
+      const solExists = this.checkSolutionExists();
+      if (modelValid && solExists) {
         console.log("model passed");
         this.createDots();
       }
     }
+  }
+
+  checkSolutionExists() {
+    const { modelData, graphInfo } = this.props;
+    const checkIntersections = [];
+    for (const pt of graphInfo.intersections) {
+      if (pt) {
+        var check = true;
+        for (let i = 0; i < modelData.numConst; i++) {
+          const coef = modelData.constCoef[i];
+          const RHS = modelData.constRHS[i];
+          const constType = modelData.constType[i];
+          var LHS = 0;
+          for (let j = 0; j < modelData.numVar; j++) LHS += coef[j] * pt[j];
+          if (
+            (LHS != RHS && constType === "equal") ||
+            (LHS > RHS && constType === "less") ||
+            (LHS < RHS && constType === "great")
+          ) {
+            check = false;
+            break;
+          }
+        }
+        checkIntersections.push(check);
+      } else {
+        checkIntersections.push(false);
+      }
+    }
+    var solutionExists = false;
+    for (const check of checkIntersections) if (check) solutionExists = check;
+    if (!solutionExists) {
+      graphInfo.updateSolutionExists();
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -346,26 +383,26 @@ const coordEnclosed = (yFunc, xFunc, settings) => {
   const pt2 = { x: y_lim1, y: y_dom[0] };
   const pt3 = { x: x_dom[1], y: x_lim2 };
   const pt4 = { x: y_lim2, y: y_dom[1] };
-  console.log("generated points", pt1, pt2, pt3, pt4);
+  //console.log("generated points", pt1, pt2, pt3, pt4);
 
   const plotted = [];
   if (x_lim1 !== null && y_dom[0] <= x_lim1 && x_lim1 <= y_dom[1]) {
-    plotted.push(pt1);
+    //plotted.push(pt1);
     points.push(pt1);
   }
   if (y_lim1 !== null && y_dom[0] < y_lim1 && y_lim1 < x_dom[1]) {
-    plotted.push(pt2);
+    //plotted.push(pt2);
     points.push(pt2);
   }
   if (x_lim2 !== null && y_dom[0] <= x_lim2 && x_lim2 <= y_dom[1]) {
-    plotted.push(pt3);
+    //plotted.push(pt3);
     points.push(pt3);
   }
   if (y_lim2 !== null && x_dom[0] < y_lim2 && y_lim2 < x_dom[1]) {
-    plotted.push(pt4);
+    //plotted.push(pt4);
     points.push(pt4);
   }
-  console.log("plotted points", plotted);
+  //console.log("plotted points", plotted);
 
   return points;
 };

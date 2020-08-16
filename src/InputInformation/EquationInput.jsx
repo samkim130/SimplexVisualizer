@@ -27,6 +27,8 @@ export default class EquationInput extends Component {
       graphInfo: {
         graphReady: false,
         intersections: [],
+        solutionExists: true,
+        updateSolutionExists: null,
       },
       modelValid: false,
       modelResult: {
@@ -53,8 +55,10 @@ export default class EquationInput extends Component {
       },
       modelValid: false,
       graphInfo: {
+        ...this.state.graphInfo,
         graphReady: false,
-        intersections:[],
+        intersections: [],
+        solutionExists: true,
       },
     });
   }
@@ -73,8 +77,10 @@ export default class EquationInput extends Component {
       },
       modelValid: false,
       graphInfo: {
+        ...this.state.graphInfo,
         graphReady: false,
-        intersections:[],
+        intersections: [],
+        solutionExists: true,
       },
     });
   }
@@ -100,8 +106,10 @@ export default class EquationInput extends Component {
       },
       modelValid: false,
       graphInfo: {
+        ...this.state.graphInfo,
         graphReady: false,
-        intersections:[],
+        intersections: [],
+        solutionExists: true,
       },
     });
   }
@@ -121,8 +129,10 @@ export default class EquationInput extends Component {
       },
       modelValid: false,
       graphInfo: {
+        ...this.state.graphInfo,
         graphReady: false,
-        intersections:[],
+        intersections: [],
+        solutionExists: true,
       },
     });
   }
@@ -136,8 +146,10 @@ export default class EquationInput extends Component {
       },
       modelValid: false,
       graphInfo: {
+        ...this.state.graphInfo,
         graphReady: false,
-        intersections:[],
+        intersections: [],
+        solutionExists: true,
       },
     });
   };
@@ -184,8 +196,10 @@ export default class EquationInput extends Component {
       modelData: modelData,
       modelValid: false,
       graphInfo: {
+        ...this.state.graphInfo,
         graphReady: false,
-        intersections:[],
+        intersections: [],
+        solutionExists: true,
       },
     });
 
@@ -202,8 +216,10 @@ export default class EquationInput extends Component {
       },
       modelValid: false,
       graphInfo: {
+        ...this.state.graphInfo,
         graphReady: false,
-        intersections:[],
+        intersections: [],
+        solutionExists: true,
       },
     });
     console.log("changed constraint type:", e.target.id, e.target.value);
@@ -231,16 +247,20 @@ export default class EquationInput extends Component {
 
       this.setState({
         graphInfo: {
+          ...this.state.graphInfo,
           graphReady: true,
           intersections: json.intersections,
+          solutionExists: true,
         },
       });
     } else {
       console.log("HTTP-Error: " + response.status);
       this.setState({
         graphInfo: {
+          ...this.state.graphInfo,
           graphReady: false,
-          intersections:[],
+          intersections: [],
+          solutionExists: true,
         },
       });
     }
@@ -294,6 +314,10 @@ export default class EquationInput extends Component {
         constType: defaultConstType,
         constRHS: defaultConstRHS,
       },
+      graphInfo: {
+        ...this.state.graphInfo,
+        updateSolutionExists: this.triggerSolDNE.bind(this),
+      },
     });
     /*
     const { numVar, numConst } = this.state.modelData;
@@ -311,6 +335,17 @@ export default class EquationInput extends Component {
       },
     });
     */
+  }
+
+  triggerSolDNE() {
+    const { graphInfo } = this.state;
+    console.log("solution does not exist!!!!");
+    this.setState({
+      graphInfo: {
+        ...graphInfo,
+        solutionExists: false,
+      },
+    });
   }
 
   componentDidUpdate() {}
@@ -361,28 +396,41 @@ export default class EquationInput extends Component {
             add(+)
           </button>
           {` `}
-          <button className="btn btn-primary" onClick={() => this.removeConst()}>
+          <button
+            className="btn btn-primary"
+            onClick={() => this.removeConst()}
+          >
             remove(-)
           </button>
           <br />
           <br />
           {graphInfo.graphReady ? (
-            modelValid ? (
-              ""
+            graphInfo.solutionExists ? (
+              modelValid ? (
+                ""
+              ) : (
+                <button
+                  className="btn btn-primary"
+                  onClick={() => this.solveModel()}
+                >
+                  Solve
+                </button>
+              )
             ) : (
-              <button className="btn btn-primary" onClick={() => this.solveModel()}>
-                Solve
-              </button>
+              "Solution Does Not Exist"
             )
           ) : (
-            <button className="btn btn-primary" onClick={() => this.graphModel()}>
+            <button
+              className="btn btn-primary"
+              onClick={() => this.graphModel()}
+            >
               Graph
             </button>
           )}
         </div>
         <div className="split right">
           {graphInfo.graphReady ? (
-            modelValid ? (
+            modelValid && graphInfo.solutionExists ? (
               <D3Component
                 graphInfo={graphInfo}
                 modelValid={modelValid}

@@ -342,14 +342,20 @@ const coordEnclosed = (yFunc, xFunc, settings) => {
   const y_lim1 = xFunc(y_dom[0]);
   const y_lim2 = xFunc(y_dom[1]);
 
+  const pt1={ x: x_dom[0], y: x_lim1 };
+  const pt2={ x: y_lim1, y: y_dom[0] };
+  const pt3={ x: x_dom[1], y: x_lim2 };
+  const pt4={ x: y_lim2, y: y_dom[1] };
+  console.log(pt1,pt2,pt3,pt4);
+
   if (!x_lim1 && y_dom[0] <= x_lim1 && x_lim1 <= y_dom[1])
-    points.push({ x: x_dom[0], y: x_lim1 });
+    points.push(pt1);
   if (!y_lim1 && y_dom[0] < y_lim1 && y_lim1 < x_dom[1])
-    points.push({ x: y_lim1, y: y_dom[0] });
+    points.push(pt2);
   if (!x_lim2 && y_dom[0] <= x_lim2 && x_lim2 <= y_dom[1])
-    points.push({ x: x_dom[1], y: x_lim2 });
+    points.push(pt3);
   if (!y_lim2 && x_dom[0] < y_lim2 && y_lim2 < x_dom[1])
-    points.push({ x: y_lim2, y: y_dom[1] });
+    points.push(pt4);
 
   return points;
 };

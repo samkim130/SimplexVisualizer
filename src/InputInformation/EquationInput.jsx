@@ -265,7 +265,7 @@ export default class EquationInput extends Component {
       let json = await response.json();
 
       console.log("msg:", json.msg);
-      console.log(json.summary);
+      console.log(json.augmented_form);
       console.log(json.solution);
 
       const { problemSolved, iteratedSol } = json.solution;

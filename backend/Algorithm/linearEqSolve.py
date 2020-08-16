@@ -32,7 +32,7 @@ def gaussJordan(matrix):
         mat[switch]=temp
     for i in range(mat.shape[1]-1):
         if(mat[i,i]==0):
-            return(undefined)
+            return None
         mat[i]=mat[i]/mat[i,i]
         for j in range(mat.shape[1]-1):
             if(i!=j):

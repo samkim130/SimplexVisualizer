@@ -325,9 +325,10 @@ export default class D3Component extends Component {
     //const walkingValues = genCurvedGraphData(X_DOMAIN, this.props.yfunc, PRECISION);
   }
 
-  componentDidUpdate(previousProps,previousState) {
+  componentDidUpdate(previousProps) {
     const{graphInfo,modelData} = this.props;
-    if(graphInfo.graphReady && (previousProps.data !== this.props.data)){
+    if(graphInfo.graphReady && (previousProps.graphInfo !== this.props.graphInfo)){
+      console.log("diff props");
       const domains = fetchDomains(graphInfo.intersections,modelData);
       const x_scale=d3.scaleLinear().domain(domains.x).range([0, INNER_WIDTH]);
       const y_scale=d3.scaleLinear().domain(domains.y).range([0, INNER_WIDTH]);

@@ -64,7 +64,11 @@ it("matches snapshot", () => {
         modelValid={true}
         graphInfo={{
           graphReady:true,
-          intersections:[],
+          intersections:[
+            [2, 16],
+            [9.33333,1.33333],
+            [24,-6]
+          ],
         }}
         modelData={modelData}
         modelResult={modelResult}

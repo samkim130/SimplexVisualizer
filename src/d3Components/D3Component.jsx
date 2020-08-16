@@ -539,9 +539,9 @@ const solveObj = (coeff, sol) => {
 
 const addMouseEvents = (this_svg, grid_svg, sol, i, Z) => {
   this_svg.on("mouseover", function () {
-    var this_x = Number(d3.select(this).attr("cx")).toFixed(2);
-    var this_y = Number(d3.select(this).attr("cy")).toFixed(2);
-    var txt = "( " + sol[0].toFixed(2) + ", " + sol[1].toFixed(2) + " )\n" + Z;
+    const this_x = Number(d3.select(this).attr("cx")).toFixed(2);
+    const this_y = Number(d3.select(this).attr("cy")).toFixed(2);
+    const txt = "( " + sol[0].toFixed(2) + ", " + sol[1].toFixed(2) + " )\n" + Z;
 
     d3.select(this).attr("r", SOL_RADIUS * 2);
 
@@ -588,9 +588,10 @@ const addTransitions = (this_svg) => {
 
 const addMouseEventsStar = (this_svg, grid_svg, sol, i, Z) => {
   this_svg.on("mouseover", function () {
-    var this_x = X_SCALE(sol[0]).toFixed(2);
-    var this_y = Y_SCALE(sol[1]).toFixed(2);
-    var txt = "( " + sol[0].toFixed(2) + ", " + sol[1].toFixed(2) + " )\n" + Z;
+    const pos=d3.select(this).attr("transform");
+    const this_x = Number(pos.substring(pos.indexOf("(")+1, pos.indexof(","))).toFixed(2);
+    const this_y = Number(pos.substring(pos.indexOf(",")+1, pos.indexof(")"))).toFixed(2);
+    const txt = "( " + sol[0].toFixed(2) + ", " + sol[1].toFixed(2) + " )\n" + Z;
 
     d3.select(this).attr(
       "d",

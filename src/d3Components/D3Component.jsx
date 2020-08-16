@@ -193,7 +193,7 @@ export default class D3Component extends Component {
    * calls createLine and createIneqPolygon
    */
   createGraphics() {
-    const { svg, settings } = this.state;
+    const { settings } = this.state;
     const { modelData } = this.props;
     const { numVar, constCoef, constRHS } = this.props.modelData;
     for (let i = 0; i < modelData.numConst; i++) {
@@ -331,7 +331,7 @@ export default class D3Component extends Component {
       console.log("diff props");
       const domains = fetchDomains(graphInfo.intersections,modelData);
       const x_scale=d3.scaleLinear().domain(domains.x).range([0, INNER_WIDTH]);
-      const y_scale=d3.scaleLinear().domain(domains.y).range([0, INNER_WIDTH]);
+      const y_scale=d3.scaleLinear().domain(domains.y).range([INNER_HEIGHT, 0]);
       const settings= {
         x_dom: domains.x,
         y_dom: domains.y,

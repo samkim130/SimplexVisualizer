@@ -603,10 +603,10 @@ const addMouseEventsStar = (this_svg, grid_svg, sol, i, Z) => {
   this_svg.on("mouseover", function () {
     const pos = String(d3.select(this).attr("transform"));
     const this_x = Number(
-      pos.substring(pos.indexOf("(") + 1, pos.indexof(","))
+      pos.substring(pos.indexOf("(") + 1, pos.indexOf(","))
     ).toFixed(2);
     const this_y = Number(
-      pos.substring(pos.indexOf(",") + 1, pos.indexof(")"))
+      pos.substring(pos.indexOf(",") + 1, pos.indexOf(")"))
     ).toFixed(2);
     console.log(pos, this_x, this_y);
     const txt =

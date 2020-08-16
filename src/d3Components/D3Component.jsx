@@ -342,11 +342,11 @@ const coordEnclosed = (yFunc, xFunc, settings) => {
   const y_lim1 = xFunc(y_dom[0]);
   const y_lim2 = xFunc(y_dom[1]);
 
-  if (!xlim1 && y_dom[0] <= x_lim1 && x_lim1 <= y_dom[1])
+  if (!x_lim1 && y_dom[0] <= x_lim1 && x_lim1 <= y_dom[1])
     points.push({ x: x_dom[0], y: x_lim1 });
-  if (!ylim1 && y_dom[0] < y_lim1 && y_lim1 < x_dom[1])
+  if (!y_lim1 && y_dom[0] < y_lim1 && y_lim1 < x_dom[1])
     points.push({ x: y_lim1, y: y_dom[0] });
-  if (!xlim2 && y_dom[0] <= x_lim2 && x_lim2 <= y_dom[1])
+  if (!x_lim2 && y_dom[0] <= x_lim2 && x_lim2 <= y_dom[1])
     points.push({ x: x_dom[1], y: x_lim2 });
   if (!y_lim2 && x_dom[0] < y_lim2 && y_lim2 < x_dom[1])
     points.push({ x: y_lim2, y: y_dom[1] });
@@ -377,7 +377,7 @@ const genEndPoints = (coordinates, i, modelData, settings) => {
 
 const reorderPts = (endPts) => {
   const endPts_copy = endPts.slice();
-  const ordered = endpts_copy.splice(0, 2);
+  const ordered = endPts_copy.splice(0, 2);
   while (endPts_copy.length > 0) {
     const len = endPts_copy.length;
     let min_dist = -1;

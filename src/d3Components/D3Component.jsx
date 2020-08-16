@@ -143,7 +143,9 @@ export default class D3Component extends Component {
     if (graphInfo.graphReady) {
       console.log("graphed");
       this.createGraphics();
-      const solExists = graphInfo.solutionExists? this.checkSolutionExists():false;
+      const solExists = graphInfo.solutionExists
+        ? this.checkSolutionExists()
+        : false;
       if (modelValid && solExists) {
         console.log("model passed");
         this.createDots();
@@ -195,9 +197,9 @@ export default class D3Component extends Component {
     const { modelData } = this.props;
     const { numVar, constCoef, constRHS } = this.props.modelData;
     for (let i = 0; i < modelData.numConst; i++) {
-      const x_func = returnFunc(1, numVar, constCoef[i], constRHS[i]);
-      const y_func = returnFunc(0, numVar, constCoef[i], constRHS[i]);
-      const coordinates = coordEnclosed(x_func, y_func, settings);
+      const y_func = returnFunc(1, numVar, constCoef[i], constRHS[i]);
+      const x_func = returnFunc(0, numVar, constCoef[i], constRHS[i]);
+      const coordinates = coordEnclosed(y_func, x_func, settings);
 
       this.createLine(coordinates, i);
       if (modelData.constType[i] !== "equal")
@@ -309,21 +311,43 @@ export default class D3Component extends Component {
       y_scale: Y_SCALE,
       line: DEFAULT_LINE,
     };
-    console.log("mounted graphs first", settings);
-    this.setState({
-      svg: svg,
-      settings: settings,
-    });
+    this.setState(
+      {
+        svg: svg,
+        settings: settings,
+      },
+      function () {
+        this.graphSetUp();
+        this.graphDraw();
+      }
+    );
 
     //const walkingValues = genCurvedGraphData(X_DOMAIN, this.props.yfunc, PRECISION);
   }
 
   componentDidUpdate() {
-    const { graphInfo } = this.props;
-    if (graphInfo.graphReady) {
+    const{graphInfo,modelData} = this.props;
+    if(graphInfo.graphReady){
+      const domains = fetchDomains(graphInfo.intersections,modelData);
+      const x_scale=d3.scaleLinear().domain(domains.x).range([0, INNER_WIDTH]);
+      const y_scale=d3.scaleLinear().domain(domains.y).range([0, INNER_WIDTH]);
+      const settings= {
+        x_dom: domains.x,
+        y_dom: domains.y,
+        x_scale: x_scale,
+        y_scale:y_scale,
+        line: d3
+        .line()
+        .x((d) => x_scale(d.x))
+        .y((d) => y_scale(d.y)),
+      };
+      this.setState({
+        settings:settings,
+      },function(){        
+        this.graphSetUp();
+        this.graphDraw();
+      });
     }
-    this.graphSetUp();
-    this.graphDraw();
     //const walkingValueSnapShot = this.state.walkingValues;
     //console.log("walkingValuesSnapShot: ", walkingValueSnapShot);
     //this.showGraph(walkingValueSnapShot);
@@ -345,6 +369,44 @@ const genCurvedGraphData = (xDomain, yfunc, precision) => {
       data.push({ x: x, y: y });
   }
   return data;
+};
+
+const fetchDomains = (intersections,modelData)=>{
+  const domains = {
+    x:[0,0],
+    y:[0,0]
+  }
+  for(const pt of intersections){
+    if(pt){
+      if(pt[0]<domains.x[0]) domains.x[0]=pt[0];
+      if(pt[0]>domains.x[1]) domains.x[1]=pt[0];
+      if(pt[1]<domains.y[0]) domains.y[0]=pt[1];
+      if(pt[1]>domains.y[1]) domains.y[1]=pt[1];
+    }
+  }
+  
+  const { numVar,numConst, constCoef, constRHS } = modelData;
+  for (let i = 0; i < numConst; i++) {
+    const y_func = returnFunc(1, numVar, constCoef[i], constRHS[i]);
+    const x_func = returnFunc(0, numVar, constCoef[i], constRHS[i]);
+    const x_intercept=y_func(0);
+    const y_intercept=x_func(0);
+    if(x_intercept){
+      if(x_intercept<domains.x[0]) domains.x[0]=x_intercept;
+      if(x_intercept>domains.x[1]) domains.x[1]=x_intercept;
+    }
+    if(y_intercept){
+      if(y_intercept<domains.y[0]) domains.y[0]=y_intercept;
+      if(y_intercept>domains.y[1]) domains.y[1]=y_intercept;
+    }
+  }
+
+  const xRng= domains.x[1]-domains.x[0];
+  const yRng= domains.y[1]-domains.y[0];
+  domains.x=[domains.x[0]-xRng*.3, domains.x[1] +xRng*.3];
+  domains.y=[domains.y[0]-yRng*.3, domains.y[1] +yRng*.3];
+
+  return domains;
 };
 
 /**

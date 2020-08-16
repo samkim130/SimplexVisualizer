@@ -53,7 +53,9 @@ export default class D3Component extends Component {
   graphSetUp() {
     const { svg } = this.state;
     svg.selectAll("g").remove();
-    const { x_dom, y_dom, x_scale, y_scale,line } = this.state.settings;
+    svg.selectAll("path").remove();
+    svg.selectAll("text").remove();
+    const { x_dom, y_dom, x_scale, y_scale, line } = this.state.settings;
     const xAxis = d3.axisBottom(x_scale).ticks(10);
     const yAxis = d3.axisLeft(y_scale).ticks(10);
     const xAxisGrid = d3
@@ -136,20 +138,14 @@ export default class D3Component extends Component {
   }
 
   graphDraw() {
-    const { svg } = this.state;
     const { modelValid, graphInfo } = this.props;
-    if (graphInfo.graphReady && !modelValid) {
-      d3.select("#equations-imported").selectAll("polygon").remove();
-      d3.select("#equations-imported").selectAll("path").remove();
-      d3.select("#equations-imported").selectAll("circle").remove();
-      svg.select("#equations-imported").select("#solution-final").remove();
+    if (graphInfo.graphReady) {
       console.log("graphed");
       this.createGraphics();
-    } else if (modelValid && graphInfo.graphReady) {
-      d3.select("#equations-imported").selectAll("circle").remove();
-      svg.select("#equations-imported").select("#solution-final").remove();
-      console.log("model passed");
-      this.createDots();
+      if (modelValid) {
+        console.log("model passed");
+        this.createDots();
+      }
     }
   }
 
@@ -166,7 +162,7 @@ export default class D3Component extends Component {
       const y_func = returnFunc(0, numVar, constCoef[i], constRHS[i]);
       const coordinates = coordEnclosed(x_func, y_func, settings);
 
-      this.createLine(svg, coordinates, i);
+      this.createLine(coordinates, i);
       if (modelData.constType[i] !== "equal")
         this.createIneqPolygon(coordinates, i);
     }
@@ -285,9 +281,8 @@ export default class D3Component extends Component {
   }
 
   componentDidUpdate() {
-    const{graphInfo} =this.props;
-    if(graphInfo.graphReady){
-
+    const { graphInfo } = this.props;
+    if (graphInfo.graphReady) {
     }
     this.graphSetUp();
     this.graphDraw();
@@ -326,7 +321,7 @@ const returnFunc = (ind, numVar, coeff, RHS) => {
     if (coeff[ind] === 0) return null;
     let val = RHS / coeff[ind];
     for (let i = 0; i < numVar; i++)
-      if (ind!== i) val += (-1 * coeff[i] * a) / coeff[ind];
+      if (ind !== i) val += (-1 * coeff[i] * a) / coeff[ind];
     return val;
   };
   return func;
@@ -347,30 +342,30 @@ const coordEnclosed = (yFunc, xFunc, settings) => {
   const y_lim1 = xFunc(y_dom[0]);
   const y_lim2 = xFunc(y_dom[1]);
 
-  const pt1={ x: x_dom[0], y: x_lim1 };
-  const pt2={ x: y_lim1, y: y_dom[0] };
-  const pt3={ x: x_dom[1], y: x_lim2 };
-  const pt4={ x: y_lim2, y: y_dom[1] };
-  console.log("generated points",pt1,pt2,pt3,pt4);
+  const pt1 = { x: x_dom[0], y: x_lim1 };
+  const pt2 = { x: y_lim1, y: y_dom[0] };
+  const pt3 = { x: x_dom[1], y: x_lim2 };
+  const pt4 = { x: y_lim2, y: y_dom[1] };
+  console.log("generated points", pt1, pt2, pt3, pt4);
 
-  const plotted=[]
-  if (x_lim1!==null && y_dom[0] <= x_lim1 && x_lim1 <= y_dom[1]){
+  const plotted = [];
+  if (x_lim1 !== null && y_dom[0] <= x_lim1 && x_lim1 <= y_dom[1]) {
     plotted.push(pt1);
     points.push(pt1);
   }
-  if (y_lim1!== null && y_dom[0] < y_lim1 && y_lim1 < x_dom[1]){
+  if (y_lim1 !== null && y_dom[0] < y_lim1 && y_lim1 < x_dom[1]) {
     plotted.push(pt2);
     points.push(pt2);
   }
-  if (x_lim2!==null && y_dom[0] <= x_lim2 && x_lim2 <= y_dom[1]){
+  if (x_lim2 !== null && y_dom[0] <= x_lim2 && x_lim2 <= y_dom[1]) {
     plotted.push(pt3);
     points.push(pt3);
   }
-  if (y_lim2!==null && x_dom[0] < y_lim2 && y_lim2 < x_dom[1]){
+  if (y_lim2 !== null && x_dom[0] < y_lim2 && y_lim2 < x_dom[1]) {
     plotted.push(pt4);
     points.push(pt4);
   }
-  console.log("plotted points",plotted);
+  console.log("plotted points", plotted);
 
   return points;
 };

@@ -601,7 +601,7 @@ const addTransitions = (this_svg) => {
 
 const addMouseEventsStar = (this_svg, grid_svg, sol, i, Z) => {
   this_svg.on("mouseover", function () {
-    const pos = d3.select(this).attr("transform");
+    const pos = ""+d3.select(this).attr("transform");
     const this_x = Number(
       pos.substring(pos.indexOf("(") + 1, pos.indexof(","))
     ).toFixed(2);

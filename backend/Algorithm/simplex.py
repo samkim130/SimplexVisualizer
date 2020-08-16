@@ -7,14 +7,15 @@ def solveSimplex(model,logger):
     C= np.array([model['objCoef']])
     A= np.array(model['constCoef'])
     b= np.array([model['constRHS']])
+    varId= np.array(model['realVar'])
 
     solTracker=[]
     sol = [0]*C.size
 
      # sets the basic variables up
-    B_index=basicVarStart(C,A)
+    B_index=basicVarStart(C,A,varId)
     if B_index==[]:
-        return {'problemSolved':False,'iteratedSol': Null}
+        return {'problemSolved':False,'iteratedSol': None}
     else:
         logger.info(B_index)
         B=np.array([list(A[:,[i]].T[0]) for i in B_index]).T
@@ -55,12 +56,13 @@ def solveSimplex(model,logger):
 
 
 # basic variable set for the start
-def basicVarStart(C,A):
+def basicVarStart(C,A,varId):
+    isSlackArt=(varId==0)
     temp=[]
     count=0
     numConst=A.shape[0]
     
-    isBV=[list(A[:,[i]]>0).index(True) if(np.sum(A[:,[i]]==0)==(numConst-1)) & (np.sum(A[:,[i]]>0)==1) else -1 for i in range(A.shape[1])]
+    isBV=[list(A[:,[i]]==1).index(True) if((np.sum(A[:,[i]]==0)==(numConst-1)) & (np.sum(A[:,[i]]==1)==1) &(isSlackArt[i])) else -1 for i in range(A.shape[1])]
     #print(isBV)
     
     if (np.sum(np.array(isBV)>=0)==numConst):

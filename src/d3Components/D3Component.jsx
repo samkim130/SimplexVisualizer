@@ -52,6 +52,7 @@ export default class D3Component extends Component {
   /***************************************************************************************************/
   graphSetUp() {
     const { svg } = this.state;
+    svg.selectAll("g").remove();
     const { x_dom, y_dom, x_scale, y_scale,line } = this.state.settings;
     const xAxis = d3.axisBottom(x_scale).ticks(10);
     const yAxis = d3.axisLeft(y_scale).ticks(10);

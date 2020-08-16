@@ -52,7 +52,7 @@ export default class D3Component extends Component {
   /***************************************************************************************************/
   graphSetUp() {
     const { svg } = this.state;
-    const { x_dom, y_dom, x_scale, y_scale } = this.state.settings;
+    const { x_dom, y_dom, x_scale, y_scale,line } = this.state.settings;
     const xAxis = d3.axisBottom(x_scale).ticks(10);
     const yAxis = d3.axisLeft(y_scale).ticks(10);
     const xAxisGrid = d3
@@ -109,7 +109,7 @@ export default class D3Component extends Component {
       .attr("id", "x-axis-bolded")
       .attr(
         "d",
-        DEFAULT_LINE([
+        line([
           { x: x_dom[0] - (x_dom[1] - x_dom[0]) / 120, y: 0 },
           { x: x_dom[1], y: 0 },
         ])
@@ -122,7 +122,7 @@ export default class D3Component extends Component {
       .attr("id", "y-axis-bolded")
       .attr(
         "d",
-        DEFAULT_LINE([
+        line([
           { x: 0, y: y_dom[0] - (y_dom[1] - y_dom[0]) / 80 },
           { x: 0, y: y_dom[1] },
         ])
@@ -284,6 +284,10 @@ export default class D3Component extends Component {
   }
 
   componentDidUpdate() {
+    const{graphInfo} =this.props;
+    if(graphInfo.graphReady){
+
+    }
     this.graphSetUp();
     this.graphDraw();
     //const walkingValueSnapShot = this.state.walkingValues;
@@ -346,16 +350,26 @@ const coordEnclosed = (yFunc, xFunc, settings) => {
   const pt2={ x: y_lim1, y: y_dom[0] };
   const pt3={ x: x_dom[1], y: x_lim2 };
   const pt4={ x: y_lim2, y: y_dom[1] };
-  console.log(pt1,pt2,pt3,pt4);
+  console.log("generated points",pt1,pt2,pt3,pt4);
 
-  if (!x_lim1 && y_dom[0] <= x_lim1 && x_lim1 <= y_dom[1])
+  const plotted=[]
+  if (x_lim1!==null && y_dom[0] <= x_lim1 && x_lim1 <= y_dom[1]){
+    plotted.push(pt1);
     points.push(pt1);
-  if (!y_lim1 && y_dom[0] < y_lim1 && y_lim1 < x_dom[1])
+  }
+  if (y_lim1!== null && y_dom[0] < y_lim1 && y_lim1 < x_dom[1]){
+    plotted.push(pt2);
     points.push(pt2);
-  if (!x_lim2 && y_dom[0] <= x_lim2 && x_lim2 <= y_dom[1])
+  }
+  if (x_lim2!==null && y_dom[0] <= x_lim2 && x_lim2 <= y_dom[1]){
+    plotted.push(pt3);
     points.push(pt3);
-  if (!y_lim2 && x_dom[0] < y_lim2 && y_lim2 < x_dom[1])
+  }
+  if (y_lim2!==null && x_dom[0] < y_lim2 && y_lim2 < x_dom[1]){
+    plotted.push(pt4);
     points.push(pt4);
+  }
+  console.log("plotted points",plotted);
 
   return points;
 };

@@ -356,7 +356,7 @@ export default class EquationInput extends Component {
 
     return (
       <div className="simplex">
-        <div className="split left">
+        <div className="top">
           <div className="objective-function">
             <select
               name="optimization"
@@ -419,7 +419,7 @@ export default class EquationInput extends Component {
             </button>
           )}
         </div>
-        <div className="split right">
+        <div className="bottom">
           {graphInfo.graphReady ? (
             modelValid && graphInfo.solutionExists ? (
               <D3Component

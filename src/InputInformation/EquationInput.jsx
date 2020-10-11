@@ -327,11 +327,11 @@ export default class EquationInput extends Component {
     const constCoef = initConstFunc(numVar, numConst);
     this.setState({
       modelData: {
+        ...this.state.modelData,
         objCoef: objCoef,
         constCoef: constCoef,
         constType: constType,
         constRHS: constRHS,
-        ...this.state.modelData,
       },
     });
     */

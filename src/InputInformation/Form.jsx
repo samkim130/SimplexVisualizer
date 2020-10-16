@@ -1,18 +1,15 @@
-import React, {useContext} from "react";
-import {InputContext} from "./InputContext.jsx";
+import React, { useContext } from "react";
+import { ModelDataContext } from "./InputContextProvider.jsx";
 
 /**
  *
- * @param {*} objCoef
- * @param {*} numVar
  * @param {*} handleNumberChange
  */
-export const ObjFunc = (props) => {
-  const { objCoef, numVar, handleNumberChange } = props;
-
+export const ObjFunc = ({ handleCoeffChange }) => {
+  const [modelData, setModelData] = useContext(ModelDataContext);
   return (
     <div>
-      {objCoef.map((coeff, i) => {
+      {modelData.objCoef.map((coeff, i) => {
         const objOut = [];
         objOut.push(
           <input
@@ -20,7 +17,7 @@ export const ObjFunc = (props) => {
             type="text"
             id={`x-${i + 1}`}
             value={coeff}
-            onChange={handleNumberChange}
+            onChange={handleCoeffChange}
           />
         );
         objOut.push(
@@ -29,31 +26,14 @@ export const ObjFunc = (props) => {
             <b>x{i + 1} </b>
           </label>
         );
-        if (i + 1 < numVar) objOut.push("+ ");
+        if (i + 1 < modelData.numVar) objOut.push("+ ");
         return objOut;
       })}
     </div>
   );
 };
 
-/**
- *
- * @param {*} constCoef
- * @param {*} constRHS
- * @param {*} numConst
- * @param {*} numVar
- * @param {*} handleNumberChange
- */
-const ConstraintLHS = (props) => {
-  const {
-    constArray,
-    constType,
-    constRHS,
-    numVar,
-    handleNumberChange,
-    handleConstTypeChange,
-  } = props;
-
+const ConstraintLHS = ({ constArray, numVar, j, handleCoeffChange }) => {
   return constArray.map((coeff, i) => {
     const varOut = [];
     varOut.push(
@@ -62,7 +42,7 @@ const ConstraintLHS = (props) => {
         type="text"
         id={`xc-${i + 1}-${j + 1}`}
         value={coeff}
-        onChange={handleNumberChange}
+        onChange={handleCoeffChange}
       />
     );
     varOut.push(
@@ -79,30 +59,35 @@ const ConstraintLHS = (props) => {
   });
 };
 
-export const ConstFunc=(props)=>{
-    return constCoef.map((constArray, j) => {
-        return (
-          <div key={`constraint-${j}`}>
-            <ConstraintLHS></ConstraintLHS>
-            <select
-              name={`ctype-${j + 1}`}
-              id={`ctype-${j + 1}`}
-              value={constType[j]}
-              onChange={handleConstTypeChange}
-            >
-              <option value="less">{`<=`}</option>
-              <option value="equal">{`=`}</option>
-              <option value="great">{`>=`}</option>
-            </select>{" "}
-            <input
-              key={`input-rhs-${j + 1}`}
-              type="text"
-              id={`rhs-${j + 1}`}
-              value={constRHS[j]}
-              onChange={handleNumberChange}
-            />
-          </div>
-        );
-      });
+export const ConstFunc = ({ handleCoeffChange, handleConstTypeChange }) => {
+  const [modelData, setModelData] = useContext(ModelDataContext);
+  return modelData.constCoef.map((constArray, j) => {
+    return (
+      <div key={`constraint-${j}`}>
+        <ConstraintLHS
+          constArray={constArray}
+          numVar={modelData.numVar}
+          j={j}
+          handleCoeffChange={handleCoeffChange}
+        ></ConstraintLHS>
+        <select
+          name={`ctype-${j + 1}`}
+          id={`ctype-${j + 1}`}
+          value={modelData.constType[j]}
+          onChange={handleConstTypeChange}
+        >
+          <option value="less">{`<=`}</option>
+          <option value="equal">{`=`}</option>
+          <option value="great">{`>=`}</option>
+        </select>{" "}
+        <input
+          key={`input-rhs-${j + 1}`}
+          type="text"
+          id={`rhs-${j + 1}`}
+          value={modelData.constRHS[j]}
+          onChange={handleCoeffChange}
+        />
+      </div>
+    );
+  });
 };
-

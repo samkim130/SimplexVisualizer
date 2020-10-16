@@ -1,58 +1,20 @@
-import React, { useState, useEffect } from "react";
-//import ... from "../d3Components/TwoVarGraph.jsx";
+import React, { useState, useEffect, useContext } from "react";
+import D3Component from "../d3Components/D3Component.jsx";
 import "./EquationInput.css";
+import { ObjFunc, ConstFunc } from "./Form.jsx";
+import InputContextProvider, {
+  ModelDataContext,
+  GraphInfoContext,
+  ModelResultContext,
+  initObjFunc,
+} from "./InputContextProvider.jsx";
 
-const defaultObjC = [5, 4];
-const defaultConstC = [
-  [2, 1],
-  [1, 1],
-  [1, 2],
-];
-const defaultConstType = ["less", "less", "great"];
-const defaultConstRHS = [20, 18, 12];
-const testDefaultMD = {
-  numVar: 2,
-  numConst: 3,
-  obj: "maximize",
-  objCoef: defaultObjC,
-  constCoef: defaultConstC,
-  constType: defaultConstType,
-  constRHS: defaultConstRHS,
-};
-//not used yet
-const NUMVAR = 2;
-const NUMCONST = 3;
-
-export const EquationInput=()=>{
+export const EquationInputFunction = () => {
   //define useStates
-  const [modelData, setModelData] = useState(testDefaultMD);
-  /*
-  const [modelData, setModelData] = useState({
-    numVar: NUMVAR,
-    numConst: NUMCONST,
-    obj: "maximize",
-    objCoef: initObjFunc(NUMVAR),
-    constCoef: initConstFunc(NUMVAR,NUMCONST),
-    constType: initConstType(NUMCONST),
-    constRHS: initObjFunc(NUMCONST),
-  });
-   
-   */
-  const [graphInfo, setGraphInfo] = useState({
-    graphReady: false, //false if
-    intersections: [], //contains intersections calculated from backend
-    solutionExists: true, //true unless there are no valid regions
-    updateSolutionExists: triggerSolDNE(), //
-  });
+  const [modelData, setModelData] = useContext(ModelDataContext);
+  const [graphInfo, setGraphInfo] = useContext(GraphInfoContext);
+  const [modelResult, setModelResult] = useContext(ModelResultContext);
   const [modelValid, setModelValidity] = useState(false);
-  const [modelResult, setModelResult] = useState({
-    problemSolved: false, //
-    augmentedModel: null, //
-    iteratedSol: [], //
-  });
-
-  //define useEffects
-  useEffect(() => {});
 
   /* change Model State *********************************************/
   function addVar() {
@@ -95,7 +57,7 @@ export const EquationInput=()=>{
     //make changes
     constCoef.push(initObjFunc(numVar));
     constType.push("less");
-    constRHS.push(0);
+    constRHS.push("");
 
     //set States
     setModelData({
@@ -173,10 +135,11 @@ export const EquationInput=()=>{
   function handleConstTypeChange(e) {
     const { constType } = modelData;
     const index = parseInt(e.target.id.substring(6));
-    constType[index - 1] = Number(e.target.value);
+    constType[index - 1] = e.target.value;
 
     setModelData({
       ...modelData,
+      constType: constType,
     });
     resetGraph();
 
@@ -190,14 +153,6 @@ export const EquationInput=()=>{
       solutionExists: true,
     });
     setModelValidity(false);
-  }
-  //this is going to cause an issue
-  function triggerSolDNE() {
-    console.log("solution does not exist!!!!");
-    setGraphInfo({
-      ...graphInfo,
-      solutionExists: false,
-    });
   }
   /******************************************************************/
 
@@ -286,18 +241,14 @@ export const EquationInput=()=>{
             <option value="minimize">Min</option>
           </select>
           {` :  `}
-          {objFunc(modelData.objCoef, modelData.numVar, handleCoeffChange)}
+          <ObjFunc handleCoeffChange={handleCoeffChange} />
         </div>
         <div className="constraints">
           Constraints :<br></br>
-          {constraints(
-            modelData.constCoef,
-            modelData.constType,
-            modelData.constRHS,
-            modelData.numVar,
-            handleCoeffChange,
-            handleConstTypeChange
-          )}
+          <ConstFunc
+            handleCoeffChange={handleCoeffChange}
+            handleConstTypeChange={handleConstTypeChange}
+          />
         </div>
         <br></br>
         <label>Change Number of Constraints: </label>
@@ -315,10 +266,7 @@ export const EquationInput=()=>{
             modelValid ? (
               ""
             ) : (
-              <button
-                className="btn btn-primary"
-                onClick={solveModel}
-              >
+              <button className="btn btn-primary" onClick={solveModel}>
                 Solve
               </button>
             )
@@ -356,131 +304,6 @@ export const EquationInput=()=>{
       </div>
     </div>
   );
-}
-
-/**
- * initialize Objective Function Coefficients (also called by other functions since this serves a simple purpose)
- * @param {*} numVar
- */
-const initObjFunc = (numVar) => {
-  const coeffs = [];
-  for (let i = 0; i < numVar; i++) coeffs.push("");
-  return coeffs;
-};
-
-/**
- * initialize Constraint Function Coefficients
- * @param {*} numVar
- */
-const initConstFunc = (numVar, numConst) => {
-  const constC = [];
-  for (let j = 0; j < numConst; j++) constC.push(initObjFunc(numVar));
-  return constC;
-};
-
-/**
- * initialize Constraint Function Types
- * less than equal to is "less"
- * equal to is "equal"
- * greater than equal to is "great"
- * @param {*} numVar
- */
-const initConstType = (numConst) => {
-  const constT = [];
-  for (let j = 0; j < numConst; j++) constT.push("less");
-  return constT;
-};
-/**
- *
- * @param {*} objCoef
- * @param {*} numVar
- * @param {*} handleNumberChange
- */
-const objFunc = (objCoef, numVar, handleNumberChange) => {
-  return objCoef.map((coeff, i) => {
-    const objOut = [];
-    objOut.push(
-      <input
-        key={`input-x-${i + 1}`}
-        type="text"
-        id={`x-${i + 1}`}
-        value={coeff}
-        onChange={handleNumberChange}
-      />
-    );
-    objOut.push(
-      <label key={`label-x-${i + 1}`} htmlFor={`x-${i + 1}`}>
-        {` * `}
-        <b>x{i + 1} </b>
-      </label>
-    );
-    if (i + 1 < numVar) objOut.push("+ ");
-    return objOut;
-  });
-};
-
-/**
- *
- * @param {*} constCoef
- * @param {*} constRHS
- * @param {*} numConst
- * @param {*} numVar
- * @param {*} handleNumberChange
- */
-const constraints = (
-  constCoef,
-  constType,
-  constRHS,
-  numVar,
-  handleNumberChange,
-  handleConstTypeChange
-) => {
-  return constCoef.map((constArray, j) => {
-    return (
-      <div key={`constraint-${j}`}>
-        {constArray.map((coeff, i) => {
-          const varOut = [];
-          varOut.push(
-            <input
-              key={`input-xc-${i + 1}-${j + 1}`}
-              type="text"
-              id={`xc-${i + 1}-${j + 1}`}
-              value={coeff}
-              onChange={handleNumberChange}
-            />
-          );
-          varOut.push(
-            <label
-              key={`label-xc-${i + 1}-${j + 1}`}
-              htmlFor={`xc-${i + 1}-${j + 1}`}
-            >
-              {` * `}
-              <b>x{i + 1} </b>
-            </label>
-          );
-          if (i + 1 < numVar) varOut.push("+ ");
-          return varOut;
-        })}
-        <select
-          name={`ctype-${j + 1}`}
-          id={`ctype-${j + 1}`}
-          value={constType[j]}
-          onChange={handleConstTypeChange}
-        >
-          <option value="less">{`<=`}</option>
-          <option value="equal">{`=`}</option>
-          <option value="great">{`>=`}</option>
-        </select>{" "}
-        <input
-          key={`input-rhs-${j + 1}`}
-          type="text"
-          id={`rhs-${j + 1}`}
-          value={constRHS[j]}
-          onChange={handleNumberChange}
-        />
-      </div>
-    );
-  });
 };
 
 /**

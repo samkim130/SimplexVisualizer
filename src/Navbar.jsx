@@ -29,7 +29,7 @@ const Navbar = () => {
                 Simplex Solver <span className="sr-only">(current)</span>
               </a>
             </li>
-            <li className="nav-item">
+            {/*<li className="nav-item">
               <a className="nav-link" href="#">
                 Features
               </a>
@@ -39,7 +39,7 @@ const Navbar = () => {
                 Pricing
               </a>
             </li>
-            {/*<li className="nav-item dropdown">
+            <li className="nav-item dropdown">
             <a
               className="nav-link dropdown-toggle"
               href="#"

@@ -187,7 +187,7 @@ const TwoVarGraph = (props) => {
 
       svg.append("g").attr("id", "equations-imported");
     }
-  });
+  },[graphData]);
   //draw graph
   useEffect(() => {
     const { modelValid } = props;

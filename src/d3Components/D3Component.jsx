@@ -315,8 +315,10 @@ export default class D3Component extends Component {
       y_scale: Y_SCALE,
       line: DEFAULT_LINE,
     };
+    //after initial mount, set up all the graph parts
     this.setState(
       {
+        ...this.state.walkingValues,
         svg: svg,
         settings: settings,
       },
@@ -331,6 +333,7 @@ export default class D3Component extends Component {
 
   componentDidUpdate(previousProps) {
     const { graphInfo, modelData } = this.props;
+    //upate only if graph is ready
     if (
       graphInfo.graphReady &&
       previousProps.graphInfo !== this.props.graphInfo

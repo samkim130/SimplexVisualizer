@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
 import D3Component from "../d3Components/D3Component.jsx";
+import TwoVarGraph from "../d3Components/TwoVarGraph.jsx";
 import "./EquationInput.css";
 import { ObjFunc, ConstFunc } from "./Form.jsx";
-import InputContextProvider, {
+import {
   ModelDataContext,
   GraphInfoContext,
   ModelResultContext,
@@ -280,27 +281,7 @@ export const EquationInputFunction = () => {
         )}
       </div>
       <div className="bottom">
-        {graphInfo.graphReady ? (
-          modelValid && graphInfo.solutionExists ? (
-            <D3Component
-              graphInfo={graphInfo}
-              modelValid={modelValid}
-              modelData={modelData}
-              modelResult={modelResult}
-            ></D3Component>
-          ) : (
-            <D3Component
-              graphInfo={graphInfo}
-              modelValid={modelValid}
-              modelData={modelData}
-            ></D3Component>
-          )
-        ) : (
-          <D3Component
-            graphInfo={graphInfo}
-            modelValid={modelValid}
-          ></D3Component>
-        )}
+        <TwoVarGraph modelValid={modelValid}/>
       </div>
     </div>
   );

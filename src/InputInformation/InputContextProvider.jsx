@@ -67,7 +67,7 @@ const InputContextProvider = ({ children }) => {
   return (
     <ModelDataContext.Provider value={[modelData, setModelData]}>
       <GraphInfoContext.Provider value={[graphInfo, setGraphInfo]}>
-        <ModelResultContext.Provider value={[modelData, setModelData]}>
+        <ModelResultContext.Provider value={[modelResult, setModelResult]}>
           {children}
         </ModelResultContext.Provider>
       </GraphInfoContext.Provider>

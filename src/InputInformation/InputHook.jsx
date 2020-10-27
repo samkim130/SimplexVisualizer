@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useContext } from "react";
-import D3Component from "../d3Components/D3Component.jsx";
+import React, { useState, useContext } from "react";
+import ThreeVarGraph from "../d3Components/ThreeVarGraph.jsx";
 import TwoVarGraph from "../d3Components/TwoVarGraph.jsx";
+//import OneVarGraph from "../d3Components/OneVarGraph.jsx";
 import "./EquationInput.css";
 import { ObjFunc, ConstFunc } from "./Form.jsx";
 import {
@@ -36,8 +37,8 @@ export const EquationInputFunction = () => {
   }
   function removeVar() {
     const { numVar, objCoef, constCoef } = modelData;
-    if (numVar === 1) {
-      console.log("var cannot drop below 1!");
+    if (numVar === 2) {
+      console.log("var cannot drop below 2!");
       return;
     }
     objCoef.pop();
@@ -251,7 +252,16 @@ export const EquationInputFunction = () => {
             handleConstTypeChange={handleConstTypeChange}
           />
         </div>
-        <br></br>
+        <br />
+        <label>Change Number of Variables: </label>
+        <button className="btn btn-primary" onClick={addVar}>
+          add(+)
+        </button>
+        {` `}
+        <button className="btn btn-primary" onClick={removeVar}>
+          remove(-)
+        </button>
+        <br />
         <label>Change Number of Constraints: </label>
         <button className="btn btn-primary" onClick={addConst}>
           add(+)
@@ -281,7 +291,11 @@ export const EquationInputFunction = () => {
         )}
       </div>
       <div className="bottom">
-        <TwoVarGraph modelValid={modelValid}/>
+        {modelData.numVar > 2 ? (
+          <ThreeVarGraph modelValid={modelValid} />
+        ) : (
+          <TwoVarGraph modelValid={modelValid} />
+        )}
       </div>
     </div>
   );
